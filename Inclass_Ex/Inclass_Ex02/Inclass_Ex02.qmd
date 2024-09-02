@@ -1,0 +1,54 @@
+---
+title: "Inclass_Ex02"
+---
+
+```{r}
+pacman::p_load(sf, raster, spatstat, tmap, tidyverse)
+```
+
+```{r}
+mpsz_sf <- st_read(dsn = "data", layer = "MP14_SUBZONE_WEB_PL")
+```
+
+```{r}
+sg_sf <- mpsz_sf %>%
+  st_union
+plot(sg_sf)
+```
+
+
+```{r}
+childcare_sf <- st_read("Data/child-care-services-geojson.geojson") %>%
+  st_transform(crs = 3414)
+```
+
+```{r}
+childcare_ppp <- as.ppp(childcare_sf)
+```
+
+```{r}
+sg_owin <- as.owin(sg_sf)
+```
+
+```{r}
+childcareSG_ppp = childcare_ppp[sg_owin]
+```
+
+```{r}
+kde_childcareSG_bw <- density(childcareSG_ppp,
+                              sigma=bw.diggle,
+                              edge=TRUE,
+                            kernel="gaussian") 
+```
+
+```{r}
+childcareSG_ppp.km <- rescale.ppp(childcareSG_ppp, 1000, "km")
+
+kde_childcareSG_adaptive <- adaptive.density(childcareSG_ppp.km, method="kernel")
+
+gridded_kde_childcareSG_ad <- as(
+  kde_childcareSG_adaptive,
+  "SpatialGridDataFrame"
+)
+spplot(gridded_kde_childcareSG_ad)
+```

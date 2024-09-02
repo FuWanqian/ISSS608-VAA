@@ -11,6 +11,7 @@ execute:
 ---
 
 :::{style="font-size: 1.50em"}
+
 ```{r}
 pacman::p_load(tidyverse, sf, tmap, ggstatsplot)
 ```
@@ -28,10 +29,10 @@ mpsz14_kml <- st_read("data/geospatial/MasterPlan2014SubzoneBoundaryWebKML.kml")
 ```{r}
 st_write(mpsz14_shp, "data/MP14_SUBZONE_WEB_PL.kml",delete_dsn = TRUE)
 ```
+
 ```{r}
 mpsz14_kml <- st_read("data/MP14_SUBZONE_WEB_PL.kml")
 ```
-
 
 ```{r}
 mpsz19_kml <- st_read("data/geospatial/MasterPlan2019SubzoneBoundaryNoSeaKML.kml")
@@ -41,6 +42,7 @@ mpsz19_kml <- st_read("data/geospatial/MasterPlan2019SubzoneBoundaryNoSeaKML.kml
 mpsz19_shp = st_read(dsn = "data/", layer = "MPSZ-2019") %>%
 st_transform(crs=3414)
 ```
+
 ```{r}
 popdata2023 <- read_csv("data/aspatial/respopagesextod2023.csv")
 ```
@@ -64,6 +66,7 @@ mutate(`ECONOMY ACTIVE` = rowSums(.[7:13]) # Aged 25 - 59
          `ECONOMY ACTIVE`, `AGED`,
          `TOTAL`, `DEPENDENCY`)
 ```
+
 ```{r}
 popdata2023 <- popdata2023 %>%
   mutate_at(.vars = vars(PA, SZ),
