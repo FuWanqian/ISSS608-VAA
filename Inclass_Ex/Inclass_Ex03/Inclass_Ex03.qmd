@@ -1,11 +1,6 @@
 ---
 title: "Inclass_Ex03"
 author: "Fu Wanqian"
-execute: 
-  echo: true
-  cache: true
-  warning: false
-  freeze: true
 ---
 
 ```{r}
@@ -21,7 +16,6 @@ network <- st_read(dsn="data/geospatial",
 childcare <- st_read(dsn="data/geospatial",
                      layer="Punggol_CC")
 ```
-
 ```{r}
 childcare2 = st_zm(childcare, drop = TRUE,
         what = "ZM")
@@ -53,7 +47,6 @@ tm_shape(childcare) +
   tm_lines()
 tmap_mode('plot')
 ```
-
 ```{r}
 lixels <- lixelize_lines(network, 
                          700, 
@@ -121,7 +114,6 @@ tm_shape(childcare)+
   tm_dots()
 tmap_mode('plot')
 ```
-
 ```{r}
 kfun_childcare <- kfunctions(network, 
                              childcare,
