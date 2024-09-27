@@ -1,6 +1,11 @@
 ---
 title: "Hands-on Exercise1(A)"
 author: "Fu Wanqian"
+execute: 
+  echo: true
+  cache: true
+  warning: false
+  freeze: true
 ---
 
 # **1.3 Getting Started**
