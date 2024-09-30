@@ -16,6 +16,7 @@ GDPPC<- read.csv("data/aspatial/Hunan_GDPPC.csv")
 ```
 
 # Create a tiem series cube
+
 ```{r}
 GDPPC_st<- spacetime(GDPPC, hunan,
                        .loc_col = "County",
@@ -23,7 +24,8 @@ GDPPC_st<- spacetime(GDPPC, hunan,
 
 is_spacetime_cube(GDPPC_st)
 ```
-# Computing Gi*
+
+# Computing Gi\*
 
 # Deriving the spatial weights
 
@@ -64,7 +66,6 @@ ggplot(data=cbg,
   theme_light
 ```
 
-
 ```{r,eval=FALSE}
 cbg %>%
   summarise(mk = list(
@@ -82,18 +83,3 @@ ehsa <- gi_stars %>%
   tidyr::unnest_wider(mk)
 ehsa
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

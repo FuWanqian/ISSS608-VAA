@@ -12,6 +12,7 @@ fotmat:
   html:
     code-fold: true
 ---
+
 # 1 Setting the Scene
 
 Road traffic accidents are a significant global issue, causing approximately 1.19 million deaths and leaving 20 to 50 million people with non-fatal injuries annually, according to the World Health Organization (WHO). Vulnerable road users, like pedestrians, cyclists, and motorcyclists, make up more than half of these fatalities, with most incidents occurring in low- and middle-income countries. Thailand, in particular, has one of the highest road traffic death rates in Southeast Asia, with around 20,000 deaths each year. Economic impacts are also substantial, costing countries about 3% of their GDP. In Thailand, national highways see the highest concentration of accidents, especially in straight road sections and other accident-prone zones like intersections and curves.
