@@ -5,9 +5,9 @@ published: "September 10, 2024"
 modified: "September 22, 2024"
 execute: 
   echo: true
-  eval: true
   warning: false
   freeze: true
+  cache: true
 fotmat:
   html:
     code-fold: true
@@ -18,6 +18,10 @@ fotmat:
 Road traffic accidents are a significant global issue, causing approximately 1.19 million deaths and leaving 20 to 50 million people with non-fatal injuries annually, according to the World Health Organization (WHO). Vulnerable road users, like pedestrians, cyclists, and motorcyclists, make up more than half of these fatalities, with most incidents occurring in low- and middle-income countries. Thailand, in particular, has one of the highest road traffic death rates in Southeast Asia, with around 20,000 deaths each year. Economic impacts are also substantial, costing countries about 3% of their GDP. In Thailand, national highways see the highest concentration of accidents, especially in straight road sections and other accident-prone zones like intersections and curves.
 
 # 2 Objectives
+
+The objectives of this take-home exercise are as follows:
+
+-To visualize the spatio-temporal dynamics of road traffic accidents in BMR using appropriate statistical graphics and geovisualization methods. -To conduct detailed spatial analysis of road traffic accidents using appropriate Network Spatial Point Patterns Analysis methods. -To conduct detailed spatio-temporal analysis of road traffic accidents using appropriate Temporal Network Spatial Point Patterns Analysis methods.
 
 # 3 Data Collection
 
@@ -73,7 +77,7 @@ bmr_ad<- ad %>%
                         "Nonthaburi", "Samut Prakan", "Samut Sakhon"))
 ```
 
-Here we filter the BMR data from both the accident data and the provincial boundary data of Thailand."
+Here we filter the BMR data from both the accident data and the provincial boundary data of Thailand.
 
 ### 4.4.3 Drop missing value for accident data
 
@@ -99,7 +103,6 @@ It is important for us to ensure that all the data are projected in same project
 bmr_acc_data <- st_as_sf(bmr_acc2, coords = c("longitude", "latitude"), crs = 4326)
 
 bmr_acc_data_utm <- st_transform(bmr_acc_data, crs = 32647)
-bmr_acc_data_utm
 ```
 
 Simple feature collection with 12986 features and 16 fields\
@@ -109,7 +112,6 @@ Projected CRS: WGS 84 / UTM zone 47N
 
 ```{r}
 bmr_ad_data_utm <- st_transform(bmr_ad, crs = 32647)
-bmr_ad_data_utm
 ```
 
 Simple feature collection with 6 features and 16 fields\
@@ -120,7 +122,7 @@ Projected CRS: WGS 84 / UTM zone 47N\
 
 ## 4.2 Mapping the data
 
-```{r}
+```{r,eval=FALSE}
 plot(st_geometry(bmr_ad_data_utm), col = "lightgrey", border = "black", main = "BMR Accident Locations (Base R)")
 
 plot(st_geometry(bmr_acc_data_utm), col = "black", pch = 19, cex = 0.1, add = TRUE)  
@@ -134,9 +136,9 @@ tm_shape(bmr_ad_data_utm) +
 
 ![](images/mapping1.png){fig-align="center" width="331"}
 
-![](images/mapping3.png){width="153"}
+![](images/mapping3.png){fig-align="center" width="217"}
 
-![](images/mapping2.png){width="150"}
+![](images/mapping2.png){fig-align="center" width="224"}
 
 The first plot shows the locations of traffic accidents in the Bangkok Metropolitan Region, with black dots concentrated in the city center and along major roads, especially near intersections and busy traffic areas. Accident density varies across different provinces, with hotspots mainly distributed along major roads.
 
@@ -163,10 +165,13 @@ bmr_window <- owin(xrange = c(bbox_values[1, 1], bbox_values[1, 2]),
 
 ```{r}
 bmr_acc_ppp <- ppp(x = acc_coords[, 1], y = acc_coords[, 2], window = bmr_window)
+```
+
+```{r,eval=FALSE}
 plot(bmr_acc_ppp, main = "BMR Accident Locations", cex = 0.5)
 ```
 
-![](images/ppp.png){fig-align="center" width="222"}
+![](images/ppp.png){fig-align="center" width="291"}
 
 ## 4.4 Handling duplicate points
 
@@ -199,10 +204,12 @@ kde_bmr_acc <- density(bmr_acc_ppp_final,
                        kernel = "gaussian")  
 ```
 
-```{r}
+```{r,eval=FALSE}
 plot(kde_bmr_acc, main = "KDE of Accident Data")
 plot(st_geometry(bmr_ad_data_utm), add = TRUE, border = "black", lwd = 2)
 ```
+
+![](images/1.png)
 
 From the map, it is clear that central Bangkok and parts of Samut Prakan exhibit the highest density of car accidents, indicating that accidents are more concentrated in these urban areas. In contrast, the outer regions such as Nakhon Pathom, Pathum Thani, and Nonthaburi show much lower accident densities.
 
@@ -214,8 +221,13 @@ Alternative Hypothesis (H1): The spatial distribution of car accidents is not ra
 
 ```{r}
 G_CK = Gest(bmr_acc_ppp_final, correction = "border")
+```
+
+```{r,eval=FALSE}
 plot(G_CK, xlim=c(0,500))
 ```
+
+![](images/2.png)
 
 The plot shows that the observed G function (black line) rises more quickly than the expected Poisson function (red dashed line), indicating that car accidents are spatially clustered.
 
@@ -230,8 +242,6 @@ Lots of side roads in the road data may influence the accuracy of the NKDE resul
 ```{r}
 main_rd <- tr %>%
   filter(highway %in% c("motorway", "trunk", "primary", "secondary"))
-saveRDS(main_rd,"data/geospatial/main_rd.rds")
-
 ```
 
 Here we select bangkok city boundary.
@@ -242,7 +252,6 @@ selected_cities <- c("Bangkok")
 bangkok_city <- bmr_ad_data_utm %>%
   filter(ADM1_EN %in% selected_cities)
 
-saveRDS(bangkok_city,"data/geospatial/bmr_city.rds")
 
 ```
 
@@ -250,14 +259,13 @@ Then we select the main roads within Bangkok by intersecting the road and city b
 
 ```{r}
 main_rd_format <- st_transform(main_rd, crs = 32647)
-saveRDS(main_rd_format,"data/geospatial/main_rd_format.rds")
 ```
 
-```{r}
+```{r,eval=FALSE}
 main_bangkok_roads <- st_intersection(main_rd_format, bangkok_city)
 ```
 
-```{r}
+```{r,eval=FALSE}
 saveRDS(main_bangkok_roads, "data/geospatial/main_bangkok_roads2.rds")
 ```
 
@@ -310,6 +318,8 @@ nkde_result_bangkok <- nkde(
   grid_shape = c(200, 200),                    
   verbose = TRUE                               
 )
+
+saveRDS(nkde_result_bangkok, "data/aspatical/nkde_result_bangkok.rds")
 ```
 
 ```{r}
@@ -376,13 +386,17 @@ time_labels <- c("00:00-02:00", "02:00-04:00", "04:00-06:00", "06:00-08:00",
                  "08:00-10:00", "10:00-12:00", "12:00-14:00", "14:00-16:00", 
                  "16:00-18:00", "18:00-20:00", "20:00-22:00", "22:00-24:00")
 
+```
 
+```{r,eval=FALSE}
 ggplot(accident_count, aes(x = factor(time_period, labels = time_labels), y = count)) +
   geom_line(group=1, color="blue") +
   geom_point(color="red") +
   labs(title = "Car Accident Count by Time of Day", x = "Time Period", y = "Accident Count") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
+
+![](images/3.png)
 
 From the line plot above, we can see that the 08:00-10:00 has the highest accident count and 22:00-24:00 has the lowest count. Therefore, we will focus on these two time intervals for further analysis.
 
@@ -512,7 +526,7 @@ nonpeak_kde_bmr_acc <- density(nonpeak_bmr_acc_final,  #
                        kernel = "gaussian")  
 ```
 
-```{r}
+```{r,eval=FALSE}
 plot(peak_kde_bmr_acc, main = "KDE of Accident Data(peak)")
 plot(st_geometry(bmr_ad_data_utm), add = TRUE, border = "black", lwd = 2)
 
@@ -520,6 +534,10 @@ plot(st_geometry(bmr_ad_data_utm), add = TRUE, border = "black", lwd = 2)
 plot(nonpeak_kde_bmr_acc, main = "KDE of Accident Data(non-peak)")
 plot(st_geometry(bmr_ad_data_utm), add = TRUE, border = "black", lwd = 2)
 ```
+
+![](images/4.png)
+
+![](images/5.png)
 
 In the peak image, we can see the accident hotspots are mainly concentrated in the city center of Bangkok and surrounding areas. These areas likely experience a higher frequency of accidents due to the heavy traffic flow and commuter pressure. Additionally, in the western part of Bangkok, accident density is also significant. This indicates that during peak hours, accidents are not only concentrated in the core city but also extend to outer areas connected to the city, where traffic pressure is also high.
 
@@ -633,7 +651,7 @@ nonpeak_kde_bangkok_acc <- density(nonpeak_bangkok_acc_final,
                        kernel = "gaussian")  
 ```
 
-```{r}
+```{r,eval=FALSE}
 plot(peak_kde_bangkok_acc, main = "KDE of Accident Data(bangkok peak)")
 plot(st_geometry(bangkok_district_format), add = TRUE, border = "black", lwd = 2)
 
@@ -641,6 +659,10 @@ plot(st_geometry(bangkok_district_format), add = TRUE, border = "black", lwd = 2
 plot(nonpeak_kde_bangkok_acc, main = "KDE of Accident Data(bangkok non-peak)")
 plot(st_geometry(bangkok_district_format), add = TRUE, border = "black", lwd = 2)
 ```
+
+![](images/6.png)
+
+![](images/7.png)
 
 During peak hours, accident hotspots in Bangkok are mainly concentrated in the central and western districts. The deep yellow and red areas indicate higher accident frequencies, especially in major commuting zones near the city center, such as Phra Nakhon, Bang Rak, and Wang Thonglang. The city center shows a strong concentration of accidents, indicating high traffic pressure, while the western areas, such as Thonburi and Bang Khun Thian, also have significant accident density, reflecting the traffic flow connecting these districts to the city center. In contrast, eastern and northern areas show lower accident density during peak hours, suggesting fewer incidents in these regions.
 
@@ -652,7 +674,7 @@ From the above analysis, we can identify the high-density districts in Bangkok. 
 
 ### 6.4.1 import acc data
 
-```{r}
+```{r,eval=FALSE}
 saveRDS(peak_bangkok_acc,"data/aspatical/peak_bangkok_acc.rds")
 ```
 
@@ -696,23 +718,24 @@ samples_kfunc <- lines_center(lixels_kfunc)
 ```{r}
                 
 kfun <- kfunctions(kfunc_road,
-                             kfunc_acc_data,
-                             start = 0,
-                   end = 10000, 
-                   step = 1000, 
-                   width = 500, 
-                   nsim = 50, 
+                   kfunc_acc_data,
+                   start = 0,
+                   end = 25000,   # Reduced maximum distance
+                   step = 5000,   # Smaller steps for better resolution
+                   width = 300,  # Adjusted bandwidth
+                   nsim = 50,   # Increased number of simulations
                    resolution = 50,
                    verbose = FALSE, 
                    conf_int = 0.05,
                    agg = 100)
+
 ```
 
 ```{r}
 kfun$plotk
 ```
 
-From the above plot, in the **0-2750 meter distance**, the blue line is significantly above the shaded confidence envelope. This indicates that within this distance, car accidents are spatially **clustered** in the five selected zones. After this distance, the blue line tends to level off and remains within the shaded area, indicating that beyond 2750 meters, the distribution of accident points becomes more **random** or follows a pattern similar to spatial randomness. The flattening of the blue line suggests that the clustering effect diminishes as the distance increases, and the accident distribution becomes more spread out and less concentrated.
+From the above plot, within the 0-10000 meter range, the blue line is significantly above the shaded confidence envelope, indicating that car accidents are spatially clustered in the selected five zones. Beyond 10000 meters, the blue line flattens and remains within the shaded area, suggesting that the distribution of accidents becomes more random or follows a spatially random pattern. The flattening of the blue line shows that the clustering effect weakens as the distance increases, and the accidents become more spread out.
 
 ## 6.5 Time NKDE for bangkok
 
@@ -745,8 +768,8 @@ peak_nkde_result_bangkok <- nkde(
 )
 ```
 
-```{r}
-# saveRDS(peak_nkde_result_bangkok,'data/aspatical/peak_nkde_result_bangkok.rds')
+```{r,eval=FALSE}
+saveRDS(peak_nkde_result_bangkok,'data/aspatical/peak_nkde_result_bangkok.rds')
 ```
 
 ### 6.5.3 non-peak density
@@ -766,12 +789,12 @@ nonpeak_nkde_result_bangkok <- nkde(
 )
 ```
 
-```{r}
-# saveRDS(peak_nkde_result_bangkok,'data/aspatical/peak_nkde_result_bangkok.rds')
+```{r,eval=FALSE}
+saveRDS(peak_nkde_result_bangkok,'data/aspatical/peak_nkde_result_bangkok.rds')
 ```
 
-```{r}
-# saveRDS(nonpeak_nkde_result_bangkok,'data/aspatical/nonpeak_nkde_result_bangkok.rds')
+```{r,eval=FALSE}
+saveRDS(nonpeak_nkde_result_bangkok,'data/aspatical/nonpeak_nkde_result_bangkok.rds')
 ```
 
 ### 6.5.4 import data
