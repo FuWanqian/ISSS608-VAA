@@ -12,7 +12,7 @@ hunan<- st_read(dsn="data/geospatial", layer="Hunan")
 ```
 
 ```{r}
-GDPPC<- read.csv("data/aspatial/Hunan_GDPPC.csv")
+GDPPC<- read_csv("data/aspatial/Hunan_GDPPC.csv")
 ```
 
 # Create a tiem series cube
