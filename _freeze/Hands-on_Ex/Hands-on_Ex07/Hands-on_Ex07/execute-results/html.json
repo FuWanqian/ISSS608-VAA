@@ -1,0 +1,15 @@
+{
+  "hash": "9e43c9c1079a08fb5e5122823eb944bf",
+  "result": {
+    "engine": "knitr",
+    "markdown": "---\ntitle: \"Hands-on_Ex07\"\nauthor: \"Fu Wanqian\"\nexecute: \n  echo: true\n  warning: false\n  freeze: true\n  cache: true\n  eval: false\nfotmat:\n  html:\n    code-fold: true\n---\n\n::: {.cell}\n\n```{.r .cell-code}\npacman::p_load(olsrr, ggstatsplot, ggpubr, sf, spdep, GWmodel, tmap, tidyverse, gtsummary, performance, see, sfdep)\n```\n:::\n\n\n\n\n# Load necessary libraries\n\n::: {.cell}\n\n```{.r .cell-code}\nlibrary(tidyverse)  # To ensure the read_csv function works\n```\n:::\n\n::: {.cell}\n\n```{.r .cell-code}\n# Reading the Condo Resale data\ncondo_resale <- read_csv(\"data/aspatial/Condo_resale_2015.csv\")\n\n# Reading the URA Master Plan subzone boundary data\nmpsz <- read_rds(\"data/rds/mpsz.rds\")\n```\n:::\n",
+    "supporting": [],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}

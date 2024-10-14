@@ -40,7 +40,16 @@ thai_province <- st_read(dsn="data/geospatial", layer = 'tha_admbnda_adm1_rtsd_2
 
 ```{r}
 thai_tour <- read_csv("data/aspatial/thailand_domestic_tourism_2019_2023_ver2.csv")
+head(thai_tour,5)
 ```
+We notice that there are 8 kinds of values in Variable, so we transforms the Variable column values into separate variables.
+```{r}
+thai_tour_wide <- thai_tour %>%
+  pivot_wider(names_from = variable, values_from = value)
+```
+
+
+
 
 And use below codes to generate a spatio-temporal dataset of thai tourism economy indicator.
 

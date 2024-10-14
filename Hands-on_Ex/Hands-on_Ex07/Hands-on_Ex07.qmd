@@ -1,0 +1,31 @@
+---
+title: "Hands-on_Ex07"
+author: "Fu Wanqian"
+execute: 
+  echo: true
+  warning: false
+  freeze: true
+  cache: true
+  eval: false
+fotmat:
+  html:
+    code-fold: true
+---
+```{r}
+pacman::p_load(olsrr, ggstatsplot, ggpubr, sf, spdep, GWmodel, tmap, tidyverse, gtsummary, performance, see, sfdep)
+```
+
+
+
+# Load necessary libraries
+```{r}
+library(tidyverse)  # To ensure the read_csv function works
+```
+
+```{r}
+# Reading the Condo Resale data
+condo_resale <- read_csv("data/aspatial/Condo_resale_2015.csv")
+
+# Reading the URA Master Plan subzone boundary data
+mpsz <- read_rds("data/rds/mpsz.rds")
+```
