@@ -8,7 +8,6 @@ execute:
   warning: false
   freeze: true
   cache: true
-  eval: false
 fotmat:
   html:
     code-fold: true
@@ -179,7 +178,7 @@ colSums(is.na(thai_last))
 
 ### 4.1.3 Calculate yearly revenue
 
-```{r}
+```{r,eval=FALSE}
 thai_last <- thai_last %>%
   mutate(year = format(as.Date(date), "%Y"))  
 thai_last_summary <- thai_last %>%
@@ -191,6 +190,11 @@ thai_last_summary <- thai_last %>%
 ```{r,eval=FALSE}
 saveRDS(thai_last_summary,"data/aspatial/thai_last_summary.rds")
 ```
+
+```{r}
+thai_last_summary<-readRDS("data/aspatial/thai_last_summary.rds")
+```
+
 
 ```{r}
 thai_summary2019 <- thai_last_summary %>%
@@ -247,7 +251,7 @@ head(coords)
 
 ```{r}
 plot(thai_summary2023$geometry, border="lightgrey")
-plot(wm_q, coords, pch = 19, cex = 0.2, add = TRUE, col = "red")
+plot(wm_q2023, coords, pch = 19, cex = 0.2, add = TRUE, col = "red")
 ```
 
 ### 4.3.3 Convert the neighbors list to a weights list
@@ -289,3 +293,7 @@ Morans_I2023 <- moran.test(thai_summary2023$revenue_all,
            listw=rswm_q2023)
 print(Morans_I2023)
 ```
+
+## 4.4 Local Measures of Spatial Autocorrelation
+### 4.4.1 Computing local Moran’s I
+
