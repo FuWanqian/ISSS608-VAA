@@ -663,5 +663,12 @@
     "title": "Inclass_Ex06",
     "section": "Mann-Kendall test data.frame",
     "text": "Mann-Kendall test data.frame\n\nehsa &lt;- gi_stars %&gt;%\n  group_by(County) %&gt;%\n  summarise(mk = list(\n    unclass(\n      Kendall::MannKendall(gi_star)))) %&gt;%\n  tidyr::unnest_wider(mk)\nhead(ehsa)\n\n# A tibble: 6 × 6\n  County        tau        sl     S     D  varS\n  &lt;chr&gt;       &lt;dbl&gt;     &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;\n1 Anhua      0.191  0.303        26  136.  589.\n2 Anren     -0.294  0.108       -40  136.  589.\n3 Anxiang    0      1             0  136.  589.\n4 Baojing   -0.691  0.000128    -94  136.  589.\n5 Chaling   -0.0882 0.650       -12  136.  589.\n6 Changning -0.750  0.0000318  -102  136.  589.\n\n\n\nemerging &lt;- ehsa %&gt;% \n  arrange(sl, abs(tau)) %&gt;% \n  slice(1:10)\nhead(emerging)\n\n# A tibble: 6 × 6\n  County        tau         sl     S     D  varS\n  &lt;chr&gt;       &lt;dbl&gt;      &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;\n1 Shuangfeng  0.868 0.00000143   118  136.  589.\n2 Xiangtan    0.868 0.00000143   118  136.  589.\n3 Xiangxiang  0.868 0.00000143   118  136.  589.\n4 Chengbu    -0.824 0.00000482  -112  136.  589.\n5 Dongan     -0.824 0.00000482  -112  136.  589.\n6 Wugang     -0.809 0.00000712  -110  136.  589."
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on_Ex10/data/geospatial/MPSZ-2019.html",
+    "href": "Hands-on_Ex/Hands-on_Ex10/data/geospatial/MPSZ-2019.html",
+    "title": "ISSS626",
+    "section": "",
+    "text": "&lt;!DOCTYPE qgis PUBLIC ‘http://mrcc.com/qgis.dtd’ ‘SYSTEM’&gt;     dataset\n\n\n        0 0     false"
   }
 ]
