@@ -88,8 +88,8 @@ Notice that except `childcare_sf`, both `mpsz_sf` and `sg_sf` do not have p
 > DIY: If necessary, changing the referencing system to Singapore national projected coordinate system.
 
 ```{r}
-mpsz_sf <- st_transform(mpsz_sf, 4326)
-sg_sf <- st_transform(sg_sf, 4326)
+mpsz_sf <- st_transform(mpsz_sf, 3414)
+sg_sf <- st_transform(sg_sf, 3414)
 ```
 
 ### **4.4.2 Mapping the geospatial data sets**
@@ -99,7 +99,10 @@ After checking the referencing system of each geospatial data data frame, it is 
 > DIY: Using the mapping methods you learned in Hands-on Exercise 3, prepare a map as shown below.
 
 ```{r}
-
+tm_shape(mpsz_sf) +
+  tm_polygons() +
+tm_shape(childcare_sf) +
+  tm_dots()
 ```
 
 Notice that all the geospatial layers are within the same map extend. This shows that their referencing system and coordinate values are referred to similar spatial context. This is very important in any geospatial analysis.
