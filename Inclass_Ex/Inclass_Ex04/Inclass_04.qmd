@@ -1,5 +1,5 @@
 ---
-title: "In-class_Ex03"
+title: "In-class_Ex04"
 author: "Fu wanqian"
 date: "Sep 16 2024"
 date-modified: "last-modified"
@@ -11,10 +11,13 @@ execute:
 ---
 
 ------------------------------------------------------------------------
+
 ```{r}
 pacman::p_load(sf, ggstatsplot, tmap, tidyverse , GWmodel)
 ```
+
 ## Data Import and Preparation
+
 ```{r}
 hunan_sf <- st_read(dsn = "data/geospatial", 
                  layer = "Hunan")
@@ -24,18 +27,22 @@ hunan <- left_join(hunan_sf,hunan2012)%>%
 ```
 
 #left join
+
 ```{r}
 hunan_sp = hunan%>%
   as_Spatial()
 ```
 
 #Determine adaptive bandwidth
+
 ```{r}
 bw_AIC=bw.gwr(GDPPC~1,data= hunan_sp, approach = "AIC", adaptive = TRUE,
              kernel="bisquare", longlat = T)
 bw_AIC
 ```
+
 #Computationing geograohically wrighted summary statistics
+
 ```{r}
 gwstat=gwss(
   data = hunan_sp, 
@@ -47,12 +54,14 @@ gwstat=gwss(
 ```
 
 #preparing the output data
+
 ```{r}
 gwstat_df = as.data.frame(gwstat$SDF)
 hunan_gstat = cbind(hunan_sf,gwstat_df)
 ```
 
 #Visualizing geographically weighted summary statistics
+
 ```{r}
 tm_shape(hunan_gstat)+tm_fill("GDPPC_LM",
                               n=5,
@@ -66,4 +75,3 @@ tm_shape(hunan_gstat)+tm_fill("GDPPC_LM",
             legend.width = 1.5,
             frame = TRUE)
 ```
-
