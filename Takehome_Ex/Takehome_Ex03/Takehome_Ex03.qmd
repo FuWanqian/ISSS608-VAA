@@ -1,4 +1,581 @@
 ---
-title: "Takehome_Ex03"
+title: "Takehome_Ex03 Predicting HDB Resale Prices with Geographically Weighted Machine Learning Methods"
 author: "Fu Wanqian"
 ---
+
+# 1 Setting the Scene
+
+Housing is an essential component of household wealth worldwide. Buying a housing has always been a major investment for most people. The price of housing is affected by many factors. Some of them are global in nature such as the general economy of a country or inflation rate. Others can be more specific to the properties themselves. These factors can be further divided to structural and locational factors. Structural factors are variables related to the property themselves such as the size, fitting, and tenure of the property. Locational factors are variables related to the neighbourhood of the properties such as proximity to childcare centre, public transport service and shopping centre.
+
+Conventional, housing resale prices predictive models were built by using Ordinary Least Square (OLS) method. However, this method failed to take into consideration that spatial autocorrelation and spatial heterogeneity exist in geographic data sets such as housing transactions. With the existence of spatial autocorrelation, the OLS estimation of predictive housing resale pricing models could lead to biased, inconsistent, or inefficient results (Anselin 1998). In view of this limitation, Geographical Weighted Models were introduced to better calibrate predictive models for housing resale prices.
+
+# 2 The Task
+
+In this take-home exercise, a predictive model will be calibrated to predict HDB resale prices between July-September 2024 by using HDB resale transaction records in 2023.
+
+```{r}
+pacman::p_load(sf, sp, spdep, olsrr, SpatialML, tmap, rsample, Metrics, tidyverse, httr, jsonlite, units, matrixStats, corrplot, ggpubr, ggstatsplot, GWmodel)
+```
+
+# 3 Data Import
+
+## 3.1 Geospatial Data
+
+```{r}
+mpsz <- st_read(dsn = "data/geospatial", 
+                layer = "MP14_SUBZONE_WEB_PL") %>%
+  st_transform(3414)
+```
+
+```{r}
+hawker_center <- st_read("data/geospatial/HawkerCentresGEOJSON.geojson") %>%
+  st_transform(crs = 3414)
+```
+
+```{r}
+bus_stop <- st_read(dsn = "data/geospatial", layer = "BusStop") %>%
+  st_transform(crs = 3414) %>%
+  filter(lengths(st_within(., mpsz)) > 0)%>%
+  select(geometry)
+
+```
+
+```{r}
+mrt <- st_read(dsn = "data/geospatial", layer = "RapidTransitSystemStation") %>%
+  st_transform(crs = 3414)
+```
+
+```{r}
+unique_values <- lapply(mrt, unique)
+```
+
+```{r}
+unique_values[["STN_NAM_DE"]]
+```
+
+When we check the unique value of STN_NAM_DE, we find some place like TUAS DEPOT is for mantaining not transport so we delete them.
+
+```{r}
+mrt_station <- mrt %>% filter(str_detect(STN_NAM_DE, "STATION"))%>%
+  select(STN_NAM_DE,geometry)
+```
+
+```{r}
+supermarket <- st_read("data/geospatial/SupermarketsGEOJSON.geojson") %>%
+  st_transform(crs = 3414)
+```
+
+```{r}
+clinic <- st_read("data/geospatial/CHASClinics.geojson") %>%
+  st_transform(crs = 3414)
+```
+
+## 3.2 Aspatial Data
+
+Use below codes to retrieve geocoding data for from OneMap API to the aspatial data.
+
+```{r}
+get_coords <- function(add_list){
+  
+  # Create a data frame to store all retrieved coordinates
+  postal_coords <- data.frame()
+    
+  for (i in add_list){
+    r <- GET('https://www.onemap.gov.sg/api/common/elastic/search?',
+           query=list(searchVal=i,
+                     returnGeom='Y',
+                     getAddrDetails='Y'))
+    data <- fromJSON(rawToChar(r$content))
+    found <- data$found
+    res <- data$results
+    
+    # Create a new data frame for each address
+    new_row <- data.frame()
+    
+    # If single result, append 
+    if (found == 1){
+      postal <- res$POSTAL 
+      lat <- res$LATITUDE
+      lng <- res$LONGITUDE
+      new_row <- data.frame(address= i, 
+                            postal = postal, 
+                            latitude = lat, 
+                            longitude = lng)
+    }
+    
+    # If multiple results, drop NIL and append top 1
+    else if (found > 1){
+      # Remove those with NIL as postal
+      res_sub <- res[res$POSTAL != "NIL", ]
+      
+      # Set as NA first if no Postal
+      if (nrow(res_sub) == 0) {
+          new_row <- data.frame(address= i, 
+                                postal = NA, 
+                                latitude = NA, 
+                                longitude = NA)
+      }
+      
+      else{
+        top1 <- head(res_sub, n = 1)
+        postal <- top1$POSTAL 
+        lat <- top1$LATITUDE
+        lng <- top1$LONGITUDE
+        new_row <- data.frame(address= i, 
+                              postal = postal, 
+                              latitude = lat, 
+                              longitude = lng)
+      }
+    }
+
+    else {
+      new_row <- data.frame(address= i, 
+                            postal = NA, 
+                            latitude = NA, 
+                            longitude = NA)
+    }
+    
+    # Add the row
+    postal_coords <- rbind(postal_coords, new_row)
+  }
+  return(postal_coords)
+}
+```
+
+Use below codes to select primary schools in sg and give them coordinates.
+
+```{r, eval=FALSE}
+school_data <- read.csv("data/aspatial/Generalinformationofschools.csv")
+```
+
+```{r, eval=FALSE}
+primary_school <- school_data %>%
+  filter(mainlevel_code %in% c("PRIMARY", "MIXED LEVELS"))
+
+```
+
+```{r, eval=FALSE}
+primary_school_address <- primary_school$address
+
+primary_school_coord <- get_coords(primary_school_address)
+
+primary_schools_with_coord <- primary_school %>%
+  left_join(primary_school_coord, by = c("address" = "address"))
+```
+
+```{r, eval=FALSE}
+saveRDS(primary_schools_with_coord, "data/primary_schools_with_coord.rds")
+```
+
+```{r}
+primary_school <- readRDS("data/primary_schools_with_coord.rds")%>%
+  select(school_name,latitude, longitude)
+```
+
+Based on the list of primary schools that are ordered in ranking in terms of popularity, which can be found at at [Local Salary Forum](https://www.salary.sg/2021/best-primary-schools-2021-by-popularity), we select top 20 Primary School as good primary school.
+
+```{r}
+
+target_schools <- c(
+  "CHIJ ST. NICHOLAS GIRLS' SCHOOL",
+  "AI TONG SCHOOL",
+  "CATHOLIC HIGH SCHOOL",
+  "ROSYTH SCHOOL",
+  "PEI HWA PRESBYTERIAN PRIMARY SCHOOL",
+  "NANYANG PRIMARY SCHOOL",
+  "NAN HUA PRIMARY SCHOOL",
+  "TAO NAN SCHOOL",
+  "TEMASEK PRIMARY SCHOOL",
+  "ST. HILDA'S PRIMARY SCHOOL",
+  "GONGSHANG PRIMARY SCHOOL",
+  "HOLY INNOCENTS' PRIMARY SCHOOL",
+  "RULANG PRIMARY SCHOOL",
+  "PEI CHUN PUBLIC SCHOOL",
+  "FAIRFIELD METHODIST SCHOOL (PRIMARY)",
+  "ANGLO-CHINESE SCHOOL (PRIMARY)",
+  "METHODIST GIRLS' SCHOOL (PRIMARY)",
+  "ANGLO-CHINESE SCHOOL (JUNIOR)",
+  "SOUTH VIEW PRIMARY SCHOOL",
+  "HENRY PARK PRIMARY SCHOOL"
+)
+
+good_primary <- primary_school %>%
+  filter(str_to_upper(school_name) %in% target_schools)
+```
+
+Lastly, we import HDB Resale Data.
+
+```{r}
+resale <- read_csv("data/aspatial/ResaleflatpricesbasedonregistrationdatefromJan2017onwards.csv") %>%
+  filter(month >= "2023-01" & month <= "2024-09")%>%
+  filter(flat_type == "5 ROOM")
+```
+
+```{r, eval=FALSE}
+address_list <- unique(paste(resale$block, resale$street_name))
+coordinates <- get_coords(address_list)
+
+resale <- resale %>%
+  mutate(address = paste(block, street_name)) %>%
+  left_join(coordinates, by = "address")
+```
+
+```{r, eval=FALSE}
+saveRDS(resale, "data/resale.rds")
+```
+
+```{r}
+resale <- readRDS("data/resale.rds")
+```
+
+# 4 Data pre-processing
+
+## 4.1 remove z-dimentional value
+
+```{r}
+hawker_center <- st_zm(hawker_center)
+clinic<- st_zm(clinic)
+supermarket <- st_zm(supermarket)
+```
+
+## 4.2 change storey_range value
+
+The “storey_range” column, which represents floor levels, have a format of string, like “01 TO 03. For following analysis, we change them in ordinal value because higher floor generally have higher price.
+
+```{r}
+resale <- resale %>%
+  mutate(
+    storey_range_ordinal = case_when(
+      storey_range == "01 TO 03" ~ 1,
+      storey_range == "04 TO 06" ~ 2,
+      storey_range == "07 TO 09" ~ 3,
+      storey_range == "10 TO 12" ~ 4,
+      storey_range == "13 TO 15" ~ 5,
+      storey_range == "16 TO 18" ~ 6,
+      storey_range == "19 TO 21" ~ 7,
+      storey_range == "22 TO 24" ~ 8,
+      storey_range == "25 TO 27" ~ 9,
+      storey_range == "28 TO 30" ~ 10,
+      storey_range == "31 TO 33" ~ 11,
+      storey_range == "34 TO 36" ~ 12,
+      storey_range == "37 TO 39" ~ 13,
+      storey_range == "40 TO 42" ~ 14,
+      storey_range == "43 TO 45" ~ 15,
+      TRUE ~ NA_real_ 
+    )
+  )
+
+resale <- resale %>%
+  mutate(storey_range_ordinal = factor(storey_range_ordinal, ordered = TRUE))
+```
+
+## 4.3 change remianing lease
+
+```{r}
+resale <- resale %>%
+  mutate(
+    years = as.numeric(str_extract(remaining_lease, "\\d+(?= years)")),
+    months = as.numeric(str_extract(remaining_lease, "\\d+(?= months)")),
+    months = ifelse(is.na(months), 0, months),
+    remaining_years = years + (months / 12)
+  ) %>%
+  select(-years, -months)
+```
+
+## 4.4 calculate unit age
+
+```{r}
+
+current_year <- as.numeric(format(Sys.Date(), "%Y"))  
+
+resale <- resale %>%
+  mutate(unit_age = current_year - lease_commence_date)  
+```
+
+## 4.5 calculate proximity
+
+For following analysis, we need to calculate the proximity of HDB to CBD, hawker centres, mrt, clinic, supermarket and good primary school.
+
+```{r}
+resale <- resale %>%
+  st_as_sf(coords = c("longitude", "latitude"), crs = 4326) %>%  # 假设初始为 WGS84 (EPSG:4326)
+  st_transform(crs = 3414)
+```
+
+```{r}
+CBD_location <- mrt %>%
+  filter(STN_NAM_DE == "ORCHARD MRT STATION") %>%
+  select(geometry) %>%
+  st_geometry()
+
+CBD_location <- CBD_location[1]
+```
+
+```{r}
+resale <- resale %>%
+  mutate(distance_to_CBD = st_distance(geometry, CBD_location))
+```
+
+```{r}
+resale <- resale %>%
+  mutate(distance_to_hawker = st_distance(geometry, st_union(hawker_center)))
+```
+
+```{r}
+resale <- resale %>%
+  mutate(distance_to_mrt = st_distance(geometry, st_union(mrt_station)))
+
+```
+
+```{r}
+resale <- resale %>%
+  mutate(distance_to_clinic = st_distance(geometry, st_union(clinic)))
+
+```
+
+```{r}
+resale <- resale %>%
+  mutate(distance_to_supermarket = st_distance(geometry, st_union(supermarket)))
+
+```
+
+```{r}
+good_primary <- good_primary %>%
+  st_as_sf(coords = c("longitude", "latitude"), crs = 4326) %>%  
+  st_transform(crs = 3414) 
+```
+
+```{r}
+resale <- resale %>%
+  mutate(distance_to_good_primary = st_distance(geometry, st_union(good_primary)))
+```
+
+## 4.6 calculate numbers of facilities with certain distance
+
+We also need to calculate numbers of primary school within 1km and numbers of bus stop within 350m from HDB.
+
+```{r}
+primary_school <- primary_school %>%
+  st_as_sf(coords = c("longitude", "latitude"), crs = 4326) %>%
+  st_transform(crs = 3414)
+```
+
+```{r}
+resale_buffer_1km <- st_buffer(resale, dist = 1000)      
+resale_buffer_350m <- st_buffer(resale, dist = 350) 
+```
+
+```{r}
+primary_school_within_1km <- st_join(resale_buffer_1km, primary_school, join = st_within)
+primary_school_counts <- primary_school_within_1km %>%
+  group_by(postal) %>%
+  summarise(primary_school_count = n()) %>%
+  st_set_geometry(NULL) 
+```
+
+```{r}
+bus_stop_within_350m <- st_join(resale_buffer_350m, bus_stop, join = st_within)
+bus_stop_counts <- bus_stop_within_350m %>%
+  group_by(postal) %>%
+  summarise(bus_stop_count = n()) %>%
+  st_set_geometry(NULL)
+```
+
+```{r}
+resale <- resale %>%
+  left_join(primary_school_counts, by = "postal") %>%
+  left_join(bus_stop_counts, by = "postal")
+```
+
+# 5 EDA
+
+## 5.1 HDB resale price
+
+```{r}
+ggplot(resale, aes(x=resale_price)) +
+  geom_histogram(bins = 20, color = "black", fill = "lightblue")
+```
+
+We can know from above histogram that the resale price of HDB is right-skewed.
+
+## 5.2 structural Factors
+
+```{r}
+unit_area <- ggplot(data=resale, aes(x= floor_area_sqm)) +
+  geom_histogram(bins=20, color="black", fill="lightblue")
+print(unit_area)
+```
+
+```{r}
+storey_range_ordinal <- ggplot(data = resale, aes(x = storey_range_ordinal)) +
+  geom_bar(color = "black", fill = "lightblue") +
+  labs(
+    title = "Distribution of Storey Range (Ordinal)",
+    x = "Storey Range Ordinal",
+    y = "Count"
+  )
+
+print(storey_range_ordinal)
+```
+
+```{r}
+remaining_years <- ggplot(data = resale, aes(x = remaining_years)) +
+  geom_histogram(bins = 20, color = "black", fill = "lightblue")
+print(remaining_years)
+```
+
+```{r}
+unit_age <- ggplot(data = resale, aes(x = unit_age)) +
+  geom_histogram(bins = 20, color = "black", fill = "lightblue")
+print(unit_age)
+```
+
+```{r}
+colnames(resale)
+```
+
+## 5.3 correlation matrix
+
+```{r}
+resale_corr <- resale %>%
+  st_drop_geometry() %>%
+  select(floor_area_sqm, resale_price, storey_range_ordinal, remaining_years, unit_age,distance_to_CBD, primary_school_count, bus_stop_count,distance_to_hawker, distance_to_mrt, distance_to_clinic, distance_to_supermarket, distance_to_good_primary)
+
+ggcorrmat(resale_corr)
+```
+
+```{r}
+str(resale_corr)
+
+
+resale_corr <- resale_corr %>%
+  mutate_if(is.factor, as.numeric) %>%
+  mutate_if(is.character, as.numeric)
+
+
+corr_matrix <- cor(resale_corr, use = "complete.obs")
+
+
+high_corr <- as.data.frame(as.table(corr_matrix)) %>%
+  filter(abs(Freq) > 0.6 & abs(Freq) < 1) %>%
+  arrange(desc(abs(Freq)))
+
+
+print(high_corr)
+```
+
+We can see that unit_age and remaining_years is highly correlated,so we delete one of them.
+
+```{r}
+corr_df <- as.data.frame(as.table(corr_matrix))
+
+
+unit_age_corr <- corr_df %>% 
+  filter(Var1 == "unit_age" & Var2 != "unit_age") %>%
+  arrange(desc(abs(Freq)))
+
+remaining_years_corr <- corr_df %>% 
+  filter(Var1 == "remaining_years" & Var2 != "remaining_years") %>%
+  arrange(desc(abs(Freq)))
+```
+
+```{r}
+print(unit_age_corr)
+```
+
+```{r}
+print(remaining_years_corr)
+```
+
+We choose to delete unit_age.
+
+
+# 6 Modeling
+## 6.1 Geographical Random Forest Model
+
+```{r}
+resale <- resale %>%
+  mutate(
+    distance_to_CBD = as.numeric(distance_to_CBD),
+    distance_to_hawker = as.numeric(distance_to_hawker),
+    distance_to_mrt = as.numeric(distance_to_mrt),
+    distance_to_clinic = as.numeric(distance_to_clinic),
+    distance_to_supermarket = as.numeric(distance_to_supermarket),
+    distance_to_good_primary = as.numeric(distance_to_good_primary)
+  )
+
+resale <- resale %>%
+  mutate(storey_range_ordinal = as.numeric(as.character(storey_range_ordinal)))
+```
+
+split test and train data.
+
+```{r}
+resale_train <- resale %>%
+  filter(str_sub(month, 1, 4) == "2023")%>%
+  select(floor_area_sqm, resale_price, storey_range_ordinal, remaining_years, distance_to_CBD, primary_school_count, bus_stop_count,distance_to_hawker, distance_to_mrt, distance_to_clinic, distance_to_supermarket, distance_to_good_primary)
+```
+
+```{r}
+resale_test <- resale %>%
+  filter(str_sub(month, 1, 4) == "2024")%>%
+  select(floor_area_sqm, resale_price, storey_range_ordinal, remaining_years, distance_to_CBD, primary_school_count, bus_stop_count,distance_to_hawker, distance_to_mrt, distance_to_clinic, distance_to_supermarket, distance_to_good_primary)
+```
+
+```{r}
+coords_train <- st_coordinates(resale_train)
+```
+
+```{r}
+resale_train <- st_drop_geometry(resale_train)
+```
+
+```{r,eval=FALSE}
+
+set.seed(1234)
+gwRF_adaptive <- grf(formula = resale_price ~ floor_area_sqm + storey_range_ordinal +
+                       remaining_years + distance_to_CBD + primary_school_count +
+                       bus_stop_count + distance_to_hawker + distance_to_mrt +
+                       distance_to_clinic + distance_to_supermarket + distance_to_good_primary,
+                     dframe=resale_train, 
+                     bw=55,
+                     kernel="adaptive",
+                     coords=coords_train)
+
+
+```
+
+
+
+```{r,eval=FALSE}
+write_rds(gwRF_adaptive, "data/gwRF_adaptive.rds")
+```
+
+```{r}
+gwRF_adaptive <- read_rds("data/gwRF_adaptive.rds")
+```
+
+## 6.2 predict
+
+```{r}
+coords_test <- st_coordinates(resale_test)
+resale_test <- st_drop_geometry(resale_test)
+resale_test$X <- coords_test[,1]
+resale_test$Y <- coords_test[,2]
+```
+
+
+```{r,eval=FALSE}
+resale_test <- st_drop_geometry(resale_test)
+
+gwRF_pred <- predict.grf(gwRF_adaptive, 
+                           resale_test, 
+                           x.var.name="X",
+                           y.var.name="Y", 
+                           local.w=1,
+                           global.w=0)
+```
+
+
+
+

@@ -8,7 +8,7 @@
 
 <meta name="author" content="Fu Wanqian">
 
-<title>ISSS626 - Takehome_Ex03</title>
+<title>ISSS626 - Takehome_Ex03 Predicting HDB Resale Prices with Geographically Weighted Machine Learning Methods</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -20,6 +20,40 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -240,14 +274,46 @@ ul.task-list li input[type="checkbox"] {
 <!-- sidebar -->
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#setting-the-scene" id="toc-setting-the-scene" class="nav-link active" data-scroll-target="#setting-the-scene">1 Setting the Scene</a></li>
+  <li><a href="#the-task" id="toc-the-task" class="nav-link" data-scroll-target="#the-task">2 The Task</a></li>
+  <li><a href="#data-import" id="toc-data-import" class="nav-link" data-scroll-target="#data-import">3 Data Import</a>
+  <ul class="collapse">
+  <li><a href="#geospatial-data" id="toc-geospatial-data" class="nav-link" data-scroll-target="#geospatial-data">3.1 Geospatial Data</a></li>
+  <li><a href="#aspatial-data" id="toc-aspatial-data" class="nav-link" data-scroll-target="#aspatial-data">3.2 Aspatial Data</a></li>
+  </ul></li>
+  <li><a href="#data-pre-processing" id="toc-data-pre-processing" class="nav-link" data-scroll-target="#data-pre-processing">4 Data pre-processing</a>
+  <ul class="collapse">
+  <li><a href="#remove-z-dimentional-value" id="toc-remove-z-dimentional-value" class="nav-link" data-scroll-target="#remove-z-dimentional-value">4.1 remove z-dimentional value</a></li>
+  <li><a href="#change-storey_range-value" id="toc-change-storey_range-value" class="nav-link" data-scroll-target="#change-storey_range-value">4.2 change storey_range value</a></li>
+  <li><a href="#change-remianing-lease" id="toc-change-remianing-lease" class="nav-link" data-scroll-target="#change-remianing-lease">4.3 change remianing lease</a></li>
+  <li><a href="#calculate-unit-age" id="toc-calculate-unit-age" class="nav-link" data-scroll-target="#calculate-unit-age">4.4 calculate unit age</a></li>
+  <li><a href="#calculate-proximity" id="toc-calculate-proximity" class="nav-link" data-scroll-target="#calculate-proximity">4.5 calculate proximity</a></li>
+  <li><a href="#calculate-numbers-of-facilities-with-certain-distance" id="toc-calculate-numbers-of-facilities-with-certain-distance" class="nav-link" data-scroll-target="#calculate-numbers-of-facilities-with-certain-distance">4.6 calculate numbers of facilities with certain distance</a></li>
+  </ul></li>
+  <li><a href="#eda" id="toc-eda" class="nav-link" data-scroll-target="#eda">5 EDA</a>
+  <ul class="collapse">
+  <li><a href="#hdb-resale-price" id="toc-hdb-resale-price" class="nav-link" data-scroll-target="#hdb-resale-price">5.1 HDB resale price</a></li>
+  <li><a href="#structural-factors" id="toc-structural-factors" class="nav-link" data-scroll-target="#structural-factors">5.2 structural Factors</a></li>
+  <li><a href="#correlation-matrix" id="toc-correlation-matrix" class="nav-link" data-scroll-target="#correlation-matrix">5.3 correlation matrix</a></li>
+  </ul></li>
+  <li><a href="#modeling" id="toc-modeling" class="nav-link" data-scroll-target="#modeling">6 Modeling</a>
+  <ul class="collapse">
+  <li><a href="#geographical-random-forest-model" id="toc-geographical-random-forest-model" class="nav-link" data-scroll-target="#geographical-random-forest-model">6.1 Geographical Random Forest Model</a></li>
+  <li><a href="#predict" id="toc-predict" class="nav-link" data-scroll-target="#predict">6.2 predict</a></li>
+  </ul></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Takehome_Ex03</h1>
+<h1 class="title">Takehome_Ex03 Predicting HDB Resale Prices with Geographically Weighted Machine Learning Methods</h1>
 </div>
 
 
@@ -270,8 +336,910 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
+<section id="setting-the-scene" class="level1">
+<h1>1 Setting the Scene</h1>
+<p>Housing is an essential component of household wealth worldwide. Buying a housing has always been a major investment for most people. The price of housing is affected by many factors. Some of them are global in nature such as the general economy of a country or inflation rate. Others can be more specific to the properties themselves. These factors can be further divided to structural and locational factors. Structural factors are variables related to the property themselves such as the size, fitting, and tenure of the property. Locational factors are variables related to the neighbourhood of the properties such as proximity to childcare centre, public transport service and shopping centre.</p>
+<p>Conventional, housing resale prices predictive models were built by using Ordinary Least Square (OLS) method. However, this method failed to take into consideration that spatial autocorrelation and spatial heterogeneity exist in geographic data sets such as housing transactions. With the existence of spatial autocorrelation, the OLS estimation of predictive housing resale pricing models could lead to biased, inconsistent, or inefficient results (Anselin 1998). In view of this limitation, Geographical Weighted Models were introduced to better calibrate predictive models for housing resale prices.</p>
+</section>
+<section id="the-task" class="level1">
+<h1>2 The Task</h1>
+<p>In this take-home exercise, a predictive model will be calibrated to predict HDB resale prices between July-September 2024 by using HDB resale transaction records in 2023.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(sf, sp, spdep, olsrr, SpatialML, tmap, rsample, Metrics, tidyverse, httr, jsonlite, units, matrixStats, corrplot, ggpubr, ggstatsplot, GWmodel)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="data-import" class="level1">
+<h1>3 Data Import</h1>
+<section id="geospatial-data" class="level2">
+<h2 class="anchored" data-anchor-id="geospatial-data">3.1 Geospatial Data</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>mpsz <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="at">dsn =</span> <span class="st">"data/geospatial"</span>, </span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>                <span class="at">layer =</span> <span class="st">"MP14_SUBZONE_WEB_PL"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="dv">3414</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Reading layer `MP14_SUBZONE_WEB_PL' from data source 
+  `D:\FuWanqian\ISSS608-VAA\Takehome_Ex\Takehome_Ex03\data\geospatial' 
+  using driver `ESRI Shapefile'
+Simple feature collection with 323 features and 15 fields
+Geometry type: MULTIPOLYGON
+Dimension:     XY
+Bounding box:  xmin: 2667.538 ymin: 15748.72 xmax: 56396.44 ymax: 50256.33
+Projected CRS: SVY21</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>hawker_center <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="st">"data/geospatial/HawkerCentresGEOJSON.geojson"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">3414</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Reading layer `HawkerCentresGEOJSON' from data source 
+  `D:\FuWanqian\ISSS608-VAA\Takehome_Ex\Takehome_Ex03\data\geospatial\HawkerCentresGEOJSON.geojson' 
+  using driver `GeoJSON'
+Simple feature collection with 125 features and 2 fields
+Geometry type: POINT
+Dimension:     XYZ
+Bounding box:  xmin: 103.6974 ymin: 1.272716 xmax: 103.9882 ymax: 1.449017
+z_range:       zmin: 0 zmax: 0
+Geodetic CRS:  WGS 84</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>bus_stop <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="at">dsn =</span> <span class="st">"data/geospatial"</span>, <span class="at">layer =</span> <span class="st">"BusStop"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">3414</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">lengths</span>(<span class="fu">st_within</span>(., mpsz)) <span class="sc">&gt;</span> <span class="dv">0</span>)<span class="sc">%&gt;%</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(geometry)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Reading layer `BusStop' from data source 
+  `D:\FuWanqian\ISSS608-VAA\Takehome_Ex\Takehome_Ex03\data\geospatial' 
+  using driver `ESRI Shapefile'
+Simple feature collection with 5166 features and 2 fields
+Geometry type: POINT
+Dimension:     XY
+Bounding box:  xmin: 3970.122 ymin: 26482.1 xmax: 48285.52 ymax: 52983.82
+Projected CRS: SVY21</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>mrt <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="at">dsn =</span> <span class="st">"data/geospatial"</span>, <span class="at">layer =</span> <span class="st">"RapidTransitSystemStation"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">3414</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Reading layer `RapidTransitSystemStation' from data source 
+  `D:\FuWanqian\ISSS608-VAA\Takehome_Ex\Takehome_Ex03\data\geospatial' 
+  using driver `ESRI Shapefile'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in CPL_read_ogr(dsn, layer, query, as.character(options), quiet, : GDAL
+Message 1: Non closed ring detected. To avoid accepting it, set the
+OGR_GEOMETRY_ACCEPT_UNCLOSED_RING configuration option to NO</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Simple feature collection with 231 features and 7 fields
+Geometry type: POLYGON
+Dimension:     XY
+Bounding box:  xmin: 6068.209 ymin: 27478.44 xmax: 45377.5 ymax: 47913.58
+Projected CRS: SVY21</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>unique_values <span class="ot">&lt;-</span> <span class="fu">lapply</span>(mrt, unique)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>unique_values[[<span class="st">"STN_NAM_DE"</span>]]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  [1] "GALI BATU DEPOT"                                       
+  [2] "BEAUTY WORLD MRT STATION"                              
+  [3] "DHOBY GHAUT MRT STATION"                               
+  [4] "LAVENDER MRT STATION"                                  
+  [5] "RENJONG LRT STATION"                                   
+  [6] "ALJUNIED MRT STATION"                                  
+  [7] "PASIR RIS MRT STATION"                                 
+  [8] "ADMIRALTY MRT STATION"                                 
+  [9] "KEMBANGAN MRT STATION"                                 
+ [10] "COMPASSVALE LRT STATION"                               
+ [11] "KHATIB MRT STATION"                                    
+ [12] "BISHAN MRT STATION"                                    
+ [13] "TAI SENG MRT STATION"                                  
+ [14] "TAMPINES WEST MRT STATION"                             
+ [15] "TAMPINES EAST MRT STATION"                             
+ [16] "TAI SENG FACILITY BUILDING"                            
+ [17] "SUB STATION"                                           
+ [18] "STEVENS MRT STATION"                                   
+ [19] "SIXTH AVENUE MRT STATION"                              
+ [20] "SOMERSET MRT STATION"                                  
+ [21] "BRADDELL MRT STATION"                                  
+ [22] "MACPHERSON MRT STATION"                                
+ [23] "EXPO MRT STATION"                                      
+ [24] "CHANGI AIRPORT MRT STATION"                            
+ [25] "SIMEI MRT STATION"                                     
+ [26] "TANAH MERAH MRT STATION"                               
+ [27] "REDHILL MRT STATION"                                   
+ [28] "CLEMENTI MRT STATION"                                  
+ [29] "EUNOS MRT STATION"                                     
+ [30] "CHINESE GARDEN MRT STATION"                            
+ [31] "CHENG LIM LRT STATION"                                 
+ [32] "KRANJI MRT STATION"                                    
+ [33] "ANG MO KIO MRT STATION"                                
+ [34] "HARBOURFRONT MRT STATION"                              
+ [35] "MARINA BAY MRT STATION"                                
+ [36] "PAYA LEBAR MRT STATION"                                
+ [37] "DAKOTA MRT STATION"                                    
+ [38] "KING ALBERT PARK MRT STATION"                          
+ [39] "LITTLE INDIA MRT STATION"                              
+ [40] "ROCHOR MRT STATION"                                    
+ [41] "ULU PANDAN DEPOT"                                      
+ [42] "CHOA CHU KANG MRT STATION"                             
+ [43] "SEGAR LRT STATION"                                     
+ [44] "STADIUM MRT STATION"                                   
+ [45] "NICOLL HIGHWAY MRT STATION"                            
+ [46] "PROMENADE MRT STATION"                                 
+ [47] "RANGGUNG LRT STATION"                                  
+ [48] "SEMBAWANG MRT STATION"                                 
+ [49] "KANGKAR LRT STATION"                                   
+ [50] "BUGIS MRT STATION"                                     
+ [51] "OUTRAM PARK MRT STATION"                               
+ [52] "TANJONG PAGAR MRT STATION"                             
+ [53] "MARYMOUNT MRT STATION"                                 
+ [54] "BOON KENG MRT STATION"                                 
+ [55] "FARRER PARK MRT STATION"                               
+ [56] "CHINATOWN MRT STATION"                                 
+ [57] "BENCOOLEN MRT STATION"                                 
+ [58] "FORT CANNING MRT STATION"                              
+ [59] "KAKI BUKIT MRT STATION"                                
+ [60] "JALAN BESAR MRT STATION"                               
+ [61] "MATTAR MRT STATION"                                    
+ [62] "BAYFRONT MRT STATION"                                  
+ [63] "JURONG EAST MRT STATION"                               
+ [64] "BEDOK NORTH MRT STATION"                               
+ [65] "BEDOK RESERVOIR MRT STATION"                           
+ [66] "ORCHARD MRT STATION"                                   
+ [67] "BUKIT BROWN MRT STATION"                               
+ [68] "FARRER ROAD MRT STATION"                               
+ [69] "BRAS BASAH MRT STATION"                                
+ [70] "BOTANIC GARDENS MRT STATION"                           
+ [71] "CALDECOTT MRT STATION"                                 
+ [72] "LENTOR MRT STATION"                                    
+ [73] "PIONEER MRT STATION"                                   
+ [74] "NEWTON MRT STATION"                                    
+ [75] "SENGKANG LRT DEPOT"                                    
+ [76] "BUONA VISTA MRT STATION"                               
+ [77] "RAFFLES PLACE MRT STATION"                             
+ [78] "SENGKANG MRT STATION"                                  
+ [79] "BUANGKOK MRT STATION"                                  
+ [80] "TUAS CRESCENT MRT STATION"                             
+ [81] "TUAS LINK MRT STATION"                                 
+ [82] "TUAS WEST ROAD MRT STATION"                            
+ [83] "CITY HALL MRT STATION"                                 
+ [84] "CHANGI DEPOT"                                          
+ [85] "BAKAU LRT STATION"                                     
+ [86] "FARMWAY LRT STATION"                                   
+ [87] "COMMONWEALTH MRT STATION"                              
+ [88] "KUPANG LRT STATION"                                    
+ [89] "QUEENSTOWN MRT STATION"                                
+ [90] "KALLANG MRT STATION"                                   
+ [91] "RUMBIA LRT STATION"                                    
+ [92] "BOON LAY MRT STATION"                                  
+ [93] "CHOA CHU KANG LRT STATION"                             
+ [94] "SENGKANG LRT STATION"                                  
+ [95] "KOVAN MRT STATION"                                     
+ [96] "WOODLEIGH MRT STATION"                                 
+ [97] "BISHAN DEPOT"                                          
+ [98] "FAJAR LRT STATION"                                     
+ [99] "TELOK BLANGAH MRT STATION"                             
+[100] "LABRADOR PARK MRT STATION"                             
+[101] "PASIR PANJANG MRT STATION"                             
+[102] "HAW PAR VILLA MRT STATION"                             
+[103] "KENT RIDGE MRT STATION"                                
+[104] "HOLLAND VILLAGE MRT STATION"                           
+[105] "BOCC"                                                  
+[106] "HALIFAX SUB STATION CABLE TROUGH"                      
+[107] "DOWNTOWN MRT STATION"                                  
+[108] "GEYLANG BAHRU MRT STATION"                             
+[109] "BENDEMEER MRT STATION"                                 
+[110] "JOO KOON MRT STATION"                                  
+[111] "YEW TEE MRT STATION"                                   
+[112] "YISHUN MRT STATION"                                    
+[113] "YIO CHU KANG MRT STATION"                              
+[114] "WOODLANDS MRT STATION"                                 
+[115] "UPPER CHANGI MRT STATION"                              
+[116] "TONGKANG LRT STATION"                                  
+[117] "UBI MRT STATION"                                       
+[118] "TOA PAYOH MRT STATION"                                 
+[119] "TIONG BAHRU MRT STATION"                               
+[120] "THANGGAM LRT STATION"                                  
+[121] "LAKESIDE MRT STATION"                                  
+[122] "BRIGHT HILL MRT STATION"                               
+[123] "MARINA SOUTH PIER MRT STATION"                         
+[124] "CANBERRA MRT STATION"                                  
+[125] "WOODLANDS SOUTH MRT STATION"                           
+[126] "WOODLANDS NORTH MRT STATION"                           
+[127] "GUL CIRCLE MRT STATION"                                
+[128] "TUNNEL STRUCTURE CONNECTING DEPOT TO FACILITY BUILDING"
+[129] "MANDAI DEPOT"                                          
+[130] "ESPLANADE MRT STATION"                                 
+[131] "MOUNTBATTEN MRT STATION"                               
+[132] "HAVELOCK MRT STATION"                                  
+[133] "NAPIER MRT STATION"                                    
+[134] "MOUNT PLEASANT MRT STATION"                            
+[135] "SHENTON WAY MRT STATION"                               
+[136] "MARINA SOUTH MRT STATION"                              
+[137] "GARDENS BY THE BAY MRT STATION"                        
+[138] "GREAT WORLD MRT STATION"                               
+[139] "MAXWELL MRT STATION"                                   
+[140] "ORCHARD BOULEVARD MRT STATION"                         
+[141] "TAN KAH KEE MRT STATION"                               
+[142] "UPPER THOMSON MRT STATION"                             
+[143] "MAYFLOWER MRT STATION"                                 
+[144] "SIGLAP MRT STATION"                                    
+[145] "MARINE PARADE MRT STATION"                             
+[146] "TANJONG KATONG MRT STATION"                            
+[147] "KATONG PARK MRT STATION"                               
+[148] "MARINE TERRACE MRT STATION"                            
+[149] "TANJONG RHU MRT STATION"                               
+[150] "FOUNDERS' MEMORIAL MRT STATION"                        
+[151] "TELOK AYER MRT STATION"                                
+[152] "PHOENIX LRT STATION"                                   
+[153] "SOUTH VIEW LRT STATION"                                
+[154] "BUKIT BATOK MRT STATION"                               
+[155] "BUKIT GOMBAK MRT STATION"                              
+[156] "BUKIT PANJANG LRT DEPOT"                               
+[157] "BANGKIT LRT STATION"                                   
+[158] "SENJA LRT STATION"                                     
+[159] "HILLVIEW MRT STATION"                                  
+[160] "HUME MRT STATION"                                      
+[161] "BUKIT PANJANG MRT STATION"                             
+[162] "CASHEW MRT STATION"                                    
+[163] "PETIR LRT STATION"                                     
+[164] "KEAT HONG LRT STATION"                                 
+[165] "PENDING LRT STATION"                                   
+[166] "BUKIT PANJANG LRT STATION"                             
+[167] "TECK WHYE LRT STATION"                                 
+[168] "DOVER MRT STATION"                                     
+[169] "MARSILING MRT STATION"                                 
+[170] "TAMPINES MRT STATION"                                  
+[171] "HOUGANG MRT STATION"                                   
+[172] "SERANGOON MRT STATION"                                 
+[173] "SPRINGLEAF MRT STATION"                                
+[174] "KIM CHUAN DEPOT"                                       
+[175] "POTONG PASIR MRT STATION"                              
+[176] "BARTLEY MRT STATION"                                   
+[177] "CLARKE QUAY MRT STATION"                               
+[178] "JELAPANG LRT STATION"                                  
+[179] "BEDOK MRT STATION"                                     
+[180] "BAYSHORE MRT STATION"                                  
+[181] "LAYAR LRT STATION"                                     
+[182] "SENGKANG MRT DEPOT"                                    
+[183] "FERNVALE LRT STATION"                                  
+[184] "ONE-NORTH MRT STATION"                                 
+[185] "LORONG CHUAN MRT STATION"                              
+[186] "NOVENA MRT STATION"                                    
+[187] "PUNGGOL LRT STATION"                                   
+[188] "PUNGGOL MRT STATION"                                   
+[189] "DAMAI LRT STATION"                                     
+[190] "TECK LEE LRT STATION"                                  
+[191] "PUNGGOL COAST MRT STATION"                             
+[192] "COVE LRT STATION"                                      
+[193] "PUNGGOL POINT LRT STATION"                             
+[194] "SUMANG LRT STATION"                                    
+[195] "SOO TECK LRT STATION"                                  
+[196] "CORAL EDGE LRT STATION"                                
+[197] "OASIS LRT STATION"                                     
+[198] "NIBONG LRT STATION"                                    
+[199] "MERIDIAN LRT STATION"                                  
+[200] "KADALOOR LRT STATION"                                  
+[201] "SAM KEE LRT STATION"                                   
+[202] "RIVIERA LRT STATION"                                   
+[203] "SAMUDERA LRT STATION"                                  
+[204] "TUAS DEPOT"                                            </code></pre>
+</div>
+</div>
+<p>When we check the unique value of STN_NAM_DE, we find some place like TUAS DEPOT is for mantaining not transport so we delete them.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>mrt_station <span class="ot">&lt;-</span> mrt <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="fu">str_detect</span>(STN_NAM_DE, <span class="st">"STATION"</span>))<span class="sc">%&gt;%</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(STN_NAM_DE,geometry)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>supermarket <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="st">"data/geospatial/SupermarketsGEOJSON.geojson"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">3414</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Reading layer `SupermarketsGEOJSON' from data source 
+  `D:\FuWanqian\ISSS608-VAA\Takehome_Ex\Takehome_Ex03\data\geospatial\SupermarketsGEOJSON.geojson' 
+  using driver `GeoJSON'
+Simple feature collection with 526 features and 2 fields
+Geometry type: POINT
+Dimension:     XYZ
+Bounding box:  xmin: 103.6258 ymin: 1.24715 xmax: 104.0036 ymax: 1.461526
+z_range:       zmin: 0 zmax: 0
+Geodetic CRS:  WGS 84</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>clinic <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="st">"data/geospatial/CHASClinics.geojson"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">3414</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Reading layer `CHASClinics' from data source 
+  `D:\FuWanqian\ISSS608-VAA\Takehome_Ex\Takehome_Ex03\data\geospatial\CHASClinics.geojson' 
+  using driver `GeoJSON'
+Simple feature collection with 1193 features and 2 fields
+Geometry type: POINT
+Dimension:     XYZ
+Bounding box:  xmin: 103.5818 ymin: 1.016264 xmax: 103.9903 ymax: 1.456037
+z_range:       zmin: 0 zmax: 0
+Geodetic CRS:  WGS 84</code></pre>
+</div>
+</div>
+</section>
+<section id="aspatial-data" class="level2">
+<h2 class="anchored" data-anchor-id="aspatial-data">3.2 Aspatial Data</h2>
+<p>Use below codes to retrieve geocoding data for from OneMap API to the aspatial data.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>get_coords <span class="ot">&lt;-</span> <span class="cf">function</span>(add_list){</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Create a data frame to store all retrieved coordinates</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  postal_coords <span class="ot">&lt;-</span> <span class="fu">data.frame</span>()</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> add_list){</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>    r <span class="ot">&lt;-</span> <span class="fu">GET</span>(<span class="st">'https://www.onemap.gov.sg/api/common/elastic/search?'</span>,</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>           <span class="at">query=</span><span class="fu">list</span>(<span class="at">searchVal=</span>i,</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>                     <span class="at">returnGeom=</span><span class="st">'Y'</span>,</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>                     <span class="at">getAddrDetails=</span><span class="st">'Y'</span>))</span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>    data <span class="ot">&lt;-</span> <span class="fu">fromJSON</span>(<span class="fu">rawToChar</span>(r<span class="sc">$</span>content))</span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>    found <span class="ot">&lt;-</span> data<span class="sc">$</span>found</span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>    res <span class="ot">&lt;-</span> data<span class="sc">$</span>results</span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Create a new data frame for each address</span></span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>    new_row <span class="ot">&lt;-</span> <span class="fu">data.frame</span>()</span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a>    <span class="co"># If single result, append </span></span>
+<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (found <span class="sc">==</span> <span class="dv">1</span>){</span>
+<span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a>      postal <span class="ot">&lt;-</span> res<span class="sc">$</span>POSTAL </span>
+<span id="cb20-21"><a href="#cb20-21" aria-hidden="true" tabindex="-1"></a>      lat <span class="ot">&lt;-</span> res<span class="sc">$</span>LATITUDE</span>
+<span id="cb20-22"><a href="#cb20-22" aria-hidden="true" tabindex="-1"></a>      lng <span class="ot">&lt;-</span> res<span class="sc">$</span>LONGITUDE</span>
+<span id="cb20-23"><a href="#cb20-23" aria-hidden="true" tabindex="-1"></a>      new_row <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">address=</span> i, </span>
+<span id="cb20-24"><a href="#cb20-24" aria-hidden="true" tabindex="-1"></a>                            <span class="at">postal =</span> postal, </span>
+<span id="cb20-25"><a href="#cb20-25" aria-hidden="true" tabindex="-1"></a>                            <span class="at">latitude =</span> lat, </span>
+<span id="cb20-26"><a href="#cb20-26" aria-hidden="true" tabindex="-1"></a>                            <span class="at">longitude =</span> lng)</span>
+<span id="cb20-27"><a href="#cb20-27" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb20-28"><a href="#cb20-28" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb20-29"><a href="#cb20-29" aria-hidden="true" tabindex="-1"></a>    <span class="co"># If multiple results, drop NIL and append top 1</span></span>
+<span id="cb20-30"><a href="#cb20-30" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span> <span class="cf">if</span> (found <span class="sc">&gt;</span> <span class="dv">1</span>){</span>
+<span id="cb20-31"><a href="#cb20-31" aria-hidden="true" tabindex="-1"></a>      <span class="co"># Remove those with NIL as postal</span></span>
+<span id="cb20-32"><a href="#cb20-32" aria-hidden="true" tabindex="-1"></a>      res_sub <span class="ot">&lt;-</span> res[res<span class="sc">$</span>POSTAL <span class="sc">!=</span> <span class="st">"NIL"</span>, ]</span>
+<span id="cb20-33"><a href="#cb20-33" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb20-34"><a href="#cb20-34" aria-hidden="true" tabindex="-1"></a>      <span class="co"># Set as NA first if no Postal</span></span>
+<span id="cb20-35"><a href="#cb20-35" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (<span class="fu">nrow</span>(res_sub) <span class="sc">==</span> <span class="dv">0</span>) {</span>
+<span id="cb20-36"><a href="#cb20-36" aria-hidden="true" tabindex="-1"></a>          new_row <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">address=</span> i, </span>
+<span id="cb20-37"><a href="#cb20-37" aria-hidden="true" tabindex="-1"></a>                                <span class="at">postal =</span> <span class="cn">NA</span>, </span>
+<span id="cb20-38"><a href="#cb20-38" aria-hidden="true" tabindex="-1"></a>                                <span class="at">latitude =</span> <span class="cn">NA</span>, </span>
+<span id="cb20-39"><a href="#cb20-39" aria-hidden="true" tabindex="-1"></a>                                <span class="at">longitude =</span> <span class="cn">NA</span>)</span>
+<span id="cb20-40"><a href="#cb20-40" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb20-41"><a href="#cb20-41" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb20-42"><a href="#cb20-42" aria-hidden="true" tabindex="-1"></a>      <span class="cf">else</span>{</span>
+<span id="cb20-43"><a href="#cb20-43" aria-hidden="true" tabindex="-1"></a>        top1 <span class="ot">&lt;-</span> <span class="fu">head</span>(res_sub, <span class="at">n =</span> <span class="dv">1</span>)</span>
+<span id="cb20-44"><a href="#cb20-44" aria-hidden="true" tabindex="-1"></a>        postal <span class="ot">&lt;-</span> top1<span class="sc">$</span>POSTAL </span>
+<span id="cb20-45"><a href="#cb20-45" aria-hidden="true" tabindex="-1"></a>        lat <span class="ot">&lt;-</span> top1<span class="sc">$</span>LATITUDE</span>
+<span id="cb20-46"><a href="#cb20-46" aria-hidden="true" tabindex="-1"></a>        lng <span class="ot">&lt;-</span> top1<span class="sc">$</span>LONGITUDE</span>
+<span id="cb20-47"><a href="#cb20-47" aria-hidden="true" tabindex="-1"></a>        new_row <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">address=</span> i, </span>
+<span id="cb20-48"><a href="#cb20-48" aria-hidden="true" tabindex="-1"></a>                              <span class="at">postal =</span> postal, </span>
+<span id="cb20-49"><a href="#cb20-49" aria-hidden="true" tabindex="-1"></a>                              <span class="at">latitude =</span> lat, </span>
+<span id="cb20-50"><a href="#cb20-50" aria-hidden="true" tabindex="-1"></a>                              <span class="at">longitude =</span> lng)</span>
+<span id="cb20-51"><a href="#cb20-51" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb20-52"><a href="#cb20-52" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb20-53"><a href="#cb20-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-54"><a href="#cb20-54" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span> {</span>
+<span id="cb20-55"><a href="#cb20-55" aria-hidden="true" tabindex="-1"></a>      new_row <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">address=</span> i, </span>
+<span id="cb20-56"><a href="#cb20-56" aria-hidden="true" tabindex="-1"></a>                            <span class="at">postal =</span> <span class="cn">NA</span>, </span>
+<span id="cb20-57"><a href="#cb20-57" aria-hidden="true" tabindex="-1"></a>                            <span class="at">latitude =</span> <span class="cn">NA</span>, </span>
+<span id="cb20-58"><a href="#cb20-58" aria-hidden="true" tabindex="-1"></a>                            <span class="at">longitude =</span> <span class="cn">NA</span>)</span>
+<span id="cb20-59"><a href="#cb20-59" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb20-60"><a href="#cb20-60" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb20-61"><a href="#cb20-61" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Add the row</span></span>
+<span id="cb20-62"><a href="#cb20-62" aria-hidden="true" tabindex="-1"></a>    postal_coords <span class="ot">&lt;-</span> <span class="fu">rbind</span>(postal_coords, new_row)</span>
+<span id="cb20-63"><a href="#cb20-63" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb20-64"><a href="#cb20-64" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(postal_coords)</span>
+<span id="cb20-65"><a href="#cb20-65" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Use below codes to select primary schools in sg and give them coordinates.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>school_data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/aspatial/Generalinformationofschools.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>primary_school <span class="ot">&lt;-</span> school_data <span class="sc">%&gt;%</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(mainlevel_code <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"PRIMARY"</span>, <span class="st">"MIXED LEVELS"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>primary_school_address <span class="ot">&lt;-</span> primary_school<span class="sc">$</span>address</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>primary_school_coord <span class="ot">&lt;-</span> <span class="fu">get_coords</span>(primary_school_address)</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>primary_schools_with_coord <span class="ot">&lt;-</span> primary_school <span class="sc">%&gt;%</span></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(primary_school_coord, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"address"</span> <span class="ot">=</span> <span class="st">"address"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(primary_schools_with_coord, <span class="st">"data/primary_schools_with_coord.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>primary_school <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"data/primary_schools_with_coord.rds"</span>)<span class="sc">%&gt;%</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(school_name,latitude, longitude)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Based on the list of primary schools that are ordered in ranking in terms of popularity, which can be found at at&nbsp;<a href="https://www.salary.sg/2021/best-primary-schools-2021-by-popularity">Local Salary Forum</a>, we select top 20 Primary School as good primary school.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>target_schools <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"CHIJ ST. NICHOLAS GIRLS' SCHOOL"</span>,</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">"AI TONG SCHOOL"</span>,</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">"CATHOLIC HIGH SCHOOL"</span>,</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">"ROSYTH SCHOOL"</span>,</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">"PEI HWA PRESBYTERIAN PRIMARY SCHOOL"</span>,</span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>  <span class="st">"NANYANG PRIMARY SCHOOL"</span>,</span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>  <span class="st">"NAN HUA PRIMARY SCHOOL"</span>,</span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>  <span class="st">"TAO NAN SCHOOL"</span>,</span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>  <span class="st">"TEMASEK PRIMARY SCHOOL"</span>,</span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>  <span class="st">"ST. HILDA'S PRIMARY SCHOOL"</span>,</span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>  <span class="st">"GONGSHANG PRIMARY SCHOOL"</span>,</span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a>  <span class="st">"HOLY INNOCENTS' PRIMARY SCHOOL"</span>,</span>
+<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a>  <span class="st">"RULANG PRIMARY SCHOOL"</span>,</span>
+<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a>  <span class="st">"PEI CHUN PUBLIC SCHOOL"</span>,</span>
+<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a>  <span class="st">"FAIRFIELD METHODIST SCHOOL (PRIMARY)"</span>,</span>
+<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a>  <span class="st">"ANGLO-CHINESE SCHOOL (PRIMARY)"</span>,</span>
+<span id="cb26-18"><a href="#cb26-18" aria-hidden="true" tabindex="-1"></a>  <span class="st">"METHODIST GIRLS' SCHOOL (PRIMARY)"</span>,</span>
+<span id="cb26-19"><a href="#cb26-19" aria-hidden="true" tabindex="-1"></a>  <span class="st">"ANGLO-CHINESE SCHOOL (JUNIOR)"</span>,</span>
+<span id="cb26-20"><a href="#cb26-20" aria-hidden="true" tabindex="-1"></a>  <span class="st">"SOUTH VIEW PRIMARY SCHOOL"</span>,</span>
+<span id="cb26-21"><a href="#cb26-21" aria-hidden="true" tabindex="-1"></a>  <span class="st">"HENRY PARK PRIMARY SCHOOL"</span></span>
+<span id="cb26-22"><a href="#cb26-22" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb26-23"><a href="#cb26-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-24"><a href="#cb26-24" aria-hidden="true" tabindex="-1"></a>good_primary <span class="ot">&lt;-</span> primary_school <span class="sc">%&gt;%</span></span>
+<span id="cb26-25"><a href="#cb26-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">str_to_upper</span>(school_name) <span class="sc">%in%</span> target_schools)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Lastly, we import HDB Resale Data.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>resale <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data/aspatial/ResaleflatpricesbasedonregistrationdatefromJan2017onwards.csv"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(month <span class="sc">&gt;=</span> <span class="st">"2023-01"</span> <span class="sc">&amp;</span> month <span class="sc">&lt;=</span> <span class="st">"2024-09"</span>)<span class="sc">%&gt;%</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(flat_type <span class="sc">==</span> <span class="st">"5 ROOM"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 193747 Columns: 11
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+chr (8): month, town, flat_type, block, street_name, storey_range, flat_mode...
+dbl (3): floor_area_sqm, lease_commence_date, resale_price
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>address_list <span class="ot">&lt;-</span> <span class="fu">unique</span>(<span class="fu">paste</span>(resale<span class="sc">$</span>block, resale<span class="sc">$</span>street_name))</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>coordinates <span class="ot">&lt;-</span> <span class="fu">get_coords</span>(address_list)</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>resale <span class="ot">&lt;-</span> resale <span class="sc">%&gt;%</span></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">address =</span> <span class="fu">paste</span>(block, street_name)) <span class="sc">%&gt;%</span></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(coordinates, <span class="at">by =</span> <span class="st">"address"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(resale, <span class="st">"data/resale.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>resale <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"data/resale.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="data-pre-processing" class="level1">
+<h1>4 Data pre-processing</h1>
+<section id="remove-z-dimentional-value" class="level2">
+<h2 class="anchored" data-anchor-id="remove-z-dimentional-value">4.1 remove z-dimentional value</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>hawker_center <span class="ot">&lt;-</span> <span class="fu">st_zm</span>(hawker_center)</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>clinic<span class="ot">&lt;-</span> <span class="fu">st_zm</span>(clinic)</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>supermarket <span class="ot">&lt;-</span> <span class="fu">st_zm</span>(supermarket)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="change-storey_range-value" class="level2">
+<h2 class="anchored" data-anchor-id="change-storey_range-value">4.2 change storey_range value</h2>
+<p>The “storey_range” column, which represents floor levels, have a format of string, like “01 TO 03. For following analysis, we change them in ordinal value because higher floor generally have higher price.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>resale <span class="ot">&lt;-</span> resale <span class="sc">%&gt;%</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">storey_range_ordinal =</span> <span class="fu">case_when</span>(</span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>      storey_range <span class="sc">==</span> <span class="st">"01 TO 03"</span> <span class="sc">~</span> <span class="dv">1</span>,</span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>      storey_range <span class="sc">==</span> <span class="st">"04 TO 06"</span> <span class="sc">~</span> <span class="dv">2</span>,</span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>      storey_range <span class="sc">==</span> <span class="st">"07 TO 09"</span> <span class="sc">~</span> <span class="dv">3</span>,</span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>      storey_range <span class="sc">==</span> <span class="st">"10 TO 12"</span> <span class="sc">~</span> <span class="dv">4</span>,</span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>      storey_range <span class="sc">==</span> <span class="st">"13 TO 15"</span> <span class="sc">~</span> <span class="dv">5</span>,</span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>      storey_range <span class="sc">==</span> <span class="st">"16 TO 18"</span> <span class="sc">~</span> <span class="dv">6</span>,</span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>      storey_range <span class="sc">==</span> <span class="st">"19 TO 21"</span> <span class="sc">~</span> <span class="dv">7</span>,</span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>      storey_range <span class="sc">==</span> <span class="st">"22 TO 24"</span> <span class="sc">~</span> <span class="dv">8</span>,</span>
+<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a>      storey_range <span class="sc">==</span> <span class="st">"25 TO 27"</span> <span class="sc">~</span> <span class="dv">9</span>,</span>
+<span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a>      storey_range <span class="sc">==</span> <span class="st">"28 TO 30"</span> <span class="sc">~</span> <span class="dv">10</span>,</span>
+<span id="cb33-14"><a href="#cb33-14" aria-hidden="true" tabindex="-1"></a>      storey_range <span class="sc">==</span> <span class="st">"31 TO 33"</span> <span class="sc">~</span> <span class="dv">11</span>,</span>
+<span id="cb33-15"><a href="#cb33-15" aria-hidden="true" tabindex="-1"></a>      storey_range <span class="sc">==</span> <span class="st">"34 TO 36"</span> <span class="sc">~</span> <span class="dv">12</span>,</span>
+<span id="cb33-16"><a href="#cb33-16" aria-hidden="true" tabindex="-1"></a>      storey_range <span class="sc">==</span> <span class="st">"37 TO 39"</span> <span class="sc">~</span> <span class="dv">13</span>,</span>
+<span id="cb33-17"><a href="#cb33-17" aria-hidden="true" tabindex="-1"></a>      storey_range <span class="sc">==</span> <span class="st">"40 TO 42"</span> <span class="sc">~</span> <span class="dv">14</span>,</span>
+<span id="cb33-18"><a href="#cb33-18" aria-hidden="true" tabindex="-1"></a>      storey_range <span class="sc">==</span> <span class="st">"43 TO 45"</span> <span class="sc">~</span> <span class="dv">15</span>,</span>
+<span id="cb33-19"><a href="#cb33-19" aria-hidden="true" tabindex="-1"></a>      <span class="cn">TRUE</span> <span class="sc">~</span> <span class="cn">NA_real_</span> </span>
+<span id="cb33-20"><a href="#cb33-20" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb33-21"><a href="#cb33-21" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb33-22"><a href="#cb33-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-23"><a href="#cb33-23" aria-hidden="true" tabindex="-1"></a>resale <span class="ot">&lt;-</span> resale <span class="sc">%&gt;%</span></span>
+<span id="cb33-24"><a href="#cb33-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">storey_range_ordinal =</span> <span class="fu">factor</span>(storey_range_ordinal, <span class="at">ordered =</span> <span class="cn">TRUE</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="change-remianing-lease" class="level2">
+<h2 class="anchored" data-anchor-id="change-remianing-lease">4.3 change remianing lease</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>resale <span class="ot">&lt;-</span> resale <span class="sc">%&gt;%</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">years =</span> <span class="fu">as.numeric</span>(<span class="fu">str_extract</span>(remaining_lease, <span class="st">"</span><span class="sc">\\</span><span class="st">d+(?= years)"</span>)),</span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">months =</span> <span class="fu">as.numeric</span>(<span class="fu">str_extract</span>(remaining_lease, <span class="st">"</span><span class="sc">\\</span><span class="st">d+(?= months)"</span>)),</span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">months =</span> <span class="fu">ifelse</span>(<span class="fu">is.na</span>(months), <span class="dv">0</span>, months),</span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">remaining_years =</span> years <span class="sc">+</span> (months <span class="sc">/</span> <span class="dv">12</span>)</span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>years, <span class="sc">-</span>months)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="calculate-unit-age" class="level2">
+<h2 class="anchored" data-anchor-id="calculate-unit-age">4.4 calculate unit age</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>current_year <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(<span class="fu">format</span>(<span class="fu">Sys.Date</span>(), <span class="st">"%Y"</span>))  </span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>resale <span class="ot">&lt;-</span> resale <span class="sc">%&gt;%</span></span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">unit_age =</span> current_year <span class="sc">-</span> lease_commence_date)  </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="calculate-proximity" class="level2">
+<h2 class="anchored" data-anchor-id="calculate-proximity">4.5 calculate proximity</h2>
+<p>For following analysis, we need to calculate the proximity of HDB to CBD, hawker centres, mrt, clinic, supermarket and good primary school.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>resale <span class="ot">&lt;-</span> resale <span class="sc">%&gt;%</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_as_sf</span>(<span class="at">coords =</span> <span class="fu">c</span>(<span class="st">"longitude"</span>, <span class="st">"latitude"</span>), <span class="at">crs =</span> <span class="dv">4326</span>) <span class="sc">%&gt;%</span>  <span class="co"># 假设初始为 WGS84 (EPSG:4326)</span></span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">3414</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>CBD_location <span class="ot">&lt;-</span> mrt <span class="sc">%&gt;%</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(STN_NAM_DE <span class="sc">==</span> <span class="st">"ORCHARD MRT STATION"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(geometry) <span class="sc">%&gt;%</span></span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_geometry</span>()</span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a>CBD_location <span class="ot">&lt;-</span> CBD_location[<span class="dv">1</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>resale <span class="ot">&lt;-</span> resale <span class="sc">%&gt;%</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">distance_to_CBD =</span> <span class="fu">st_distance</span>(geometry, CBD_location))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>resale <span class="ot">&lt;-</span> resale <span class="sc">%&gt;%</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">distance_to_hawker =</span> <span class="fu">st_distance</span>(geometry, <span class="fu">st_union</span>(hawker_center)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>resale <span class="ot">&lt;-</span> resale <span class="sc">%&gt;%</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">distance_to_mrt =</span> <span class="fu">st_distance</span>(geometry, <span class="fu">st_union</span>(mrt_station)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>resale <span class="ot">&lt;-</span> resale <span class="sc">%&gt;%</span></span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">distance_to_clinic =</span> <span class="fu">st_distance</span>(geometry, <span class="fu">st_union</span>(clinic)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>resale <span class="ot">&lt;-</span> resale <span class="sc">%&gt;%</span></span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">distance_to_supermarket =</span> <span class="fu">st_distance</span>(geometry, <span class="fu">st_union</span>(supermarket)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>good_primary <span class="ot">&lt;-</span> good_primary <span class="sc">%&gt;%</span></span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_as_sf</span>(<span class="at">coords =</span> <span class="fu">c</span>(<span class="st">"longitude"</span>, <span class="st">"latitude"</span>), <span class="at">crs =</span> <span class="dv">4326</span>) <span class="sc">%&gt;%</span>  </span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">3414</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>resale <span class="ot">&lt;-</span> resale <span class="sc">%&gt;%</span></span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">distance_to_good_primary =</span> <span class="fu">st_distance</span>(geometry, <span class="fu">st_union</span>(good_primary)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="calculate-numbers-of-facilities-with-certain-distance" class="level2">
+<h2 class="anchored" data-anchor-id="calculate-numbers-of-facilities-with-certain-distance">4.6 calculate numbers of facilities with certain distance</h2>
+<p>We also need to calculate numbers of primary school within 1km and numbers of bus stop within 350m from HDB.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>primary_school <span class="ot">&lt;-</span> primary_school <span class="sc">%&gt;%</span></span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_as_sf</span>(<span class="at">coords =</span> <span class="fu">c</span>(<span class="st">"longitude"</span>, <span class="st">"latitude"</span>), <span class="at">crs =</span> <span class="dv">4326</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">3414</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>resale_buffer_1km <span class="ot">&lt;-</span> <span class="fu">st_buffer</span>(resale, <span class="at">dist =</span> <span class="dv">1000</span>)      </span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>resale_buffer_350m <span class="ot">&lt;-</span> <span class="fu">st_buffer</span>(resale, <span class="at">dist =</span> <span class="dv">350</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a>primary_school_within_1km <span class="ot">&lt;-</span> <span class="fu">st_join</span>(resale_buffer_1km, primary_school, <span class="at">join =</span> st_within)</span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>primary_school_counts <span class="ot">&lt;-</span> primary_school_within_1km <span class="sc">%&gt;%</span></span>
+<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(postal) <span class="sc">%&gt;%</span></span>
+<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">primary_school_count =</span> <span class="fu">n</span>()) <span class="sc">%&gt;%</span></span>
+<span id="cb47-5"><a href="#cb47-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_set_geometry</span>(<span class="cn">NULL</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>bus_stop_within_350m <span class="ot">&lt;-</span> <span class="fu">st_join</span>(resale_buffer_350m, bus_stop, <span class="at">join =</span> st_within)</span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>bus_stop_counts <span class="ot">&lt;-</span> bus_stop_within_350m <span class="sc">%&gt;%</span></span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(postal) <span class="sc">%&gt;%</span></span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">bus_stop_count =</span> <span class="fu">n</span>()) <span class="sc">%&gt;%</span></span>
+<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_set_geometry</span>(<span class="cn">NULL</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>resale <span class="ot">&lt;-</span> resale <span class="sc">%&gt;%</span></span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(primary_school_counts, <span class="at">by =</span> <span class="st">"postal"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(bus_stop_counts, <span class="at">by =</span> <span class="st">"postal"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="eda" class="level1">
+<h1>5 EDA</h1>
+<section id="hdb-resale-price" class="level2">
+<h2 class="anchored" data-anchor-id="hdb-resale-price">5.1 HDB resale price</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(resale, <span class="fu">aes</span>(<span class="at">x=</span>resale_price)) <span class="sc">+</span></span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">bins =</span> <span class="dv">20</span>, <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">fill =</span> <span class="st">"lightblue"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Takehome_Ex03_files/figure-html/unnamed-chunk-40-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>We can know from above histogram that the resale price of HDB is right-skewed.</p>
+</section>
+<section id="structural-factors" class="level2">
+<h2 class="anchored" data-anchor-id="structural-factors">5.2 structural Factors</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>unit_area <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="at">data=</span>resale, <span class="fu">aes</span>(<span class="at">x=</span> floor_area_sqm)) <span class="sc">+</span></span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">bins=</span><span class="dv">20</span>, <span class="at">color=</span><span class="st">"black"</span>, <span class="at">fill=</span><span class="st">"lightblue"</span>)</span>
+<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(unit_area)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Takehome_Ex03_files/figure-html/unnamed-chunk-41-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a>storey_range_ordinal <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="at">data =</span> resale, <span class="fu">aes</span>(<span class="at">x =</span> storey_range_ordinal)) <span class="sc">+</span></span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">color =</span> <span class="st">"black"</span>, <span class="at">fill =</span> <span class="st">"lightblue"</span>) <span class="sc">+</span></span>
+<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb52-4"><a href="#cb52-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Distribution of Storey Range (Ordinal)"</span>,</span>
+<span id="cb52-5"><a href="#cb52-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Storey Range Ordinal"</span>,</span>
+<span id="cb52-6"><a href="#cb52-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Count"</span></span>
+<span id="cb52-7"><a href="#cb52-7" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb52-8"><a href="#cb52-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb52-9"><a href="#cb52-9" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(storey_range_ordinal)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Takehome_Ex03_files/figure-html/unnamed-chunk-42-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a>remaining_years <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="at">data =</span> resale, <span class="fu">aes</span>(<span class="at">x =</span> remaining_years)) <span class="sc">+</span></span>
+<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">bins =</span> <span class="dv">20</span>, <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">fill =</span> <span class="st">"lightblue"</span>)</span>
+<span id="cb53-3"><a href="#cb53-3" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(remaining_years)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Takehome_Ex03_files/figure-html/unnamed-chunk-43-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a>unit_age <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="at">data =</span> resale, <span class="fu">aes</span>(<span class="at">x =</span> unit_age)) <span class="sc">+</span></span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">bins =</span> <span class="dv">20</span>, <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">fill =</span> <span class="st">"lightblue"</span>)</span>
+<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(unit_age)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Takehome_Ex03_files/figure-html/unnamed-chunk-44-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(resale)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] "month"                    "town"                    
+ [3] "flat_type"                "block"                   
+ [5] "street_name"              "storey_range"            
+ [7] "floor_area_sqm"           "flat_model"              
+ [9] "lease_commence_date"      "remaining_lease"         
+[11] "resale_price"             "address"                 
+[13] "postal"                   "storey_range_ordinal"    
+[15] "remaining_years"          "unit_age"                
+[17] "geometry"                 "distance_to_CBD"         
+[19] "distance_to_hawker"       "distance_to_mrt"         
+[21] "distance_to_clinic"       "distance_to_supermarket" 
+[23] "distance_to_good_primary" "primary_school_count"    
+[25] "bus_stop_count"          </code></pre>
+</div>
+</div>
+</section>
+<section id="correlation-matrix" class="level2">
+<h2 class="anchored" data-anchor-id="correlation-matrix">5.3 correlation matrix</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a>resale_corr <span class="ot">&lt;-</span> resale <span class="sc">%&gt;%</span></span>
+<span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_drop_geometry</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb57-3"><a href="#cb57-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(floor_area_sqm, resale_price, storey_range_ordinal, remaining_years, unit_age,distance_to_CBD, primary_school_count, bus_stop_count,distance_to_hawker, distance_to_mrt, distance_to_clinic, distance_to_supermarket, distance_to_good_primary)</span>
+<span id="cb57-4"><a href="#cb57-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb57-5"><a href="#cb57-5" aria-hidden="true" tabindex="-1"></a><span class="fu">ggcorrmat</span>(resale_corr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Takehome_Ex03_files/figure-html/unnamed-chunk-46-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(resale_corr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>tibble [10,884 × 13] (S3: tbl_df/tbl/data.frame)
+ $ floor_area_sqm          : num [1:10884] 123 123 119 135 119 133 118 111 119 128 ...
+ $ resale_price            : num [1:10884] 682888 695000 658888 790000 800000 ...
+ $ storey_range_ordinal    : Ord.factor w/ 15 levels "1"&lt;"2"&lt;"3"&lt;"4"&lt;..: 6 2 4 5 2 5 7 7 4 2 ...
+ $ remaining_years         : num [1:10884] 53.6 53.6 55.4 58.4 69.3 ...
+ $ unit_age                : num [1:10884] 47 47 45 42 31 28 44 21 44 28 ...
+ $ distance_to_CBD         : Units: [m] num [1:10884, 1] 6919 6919 6791 7066 7883 ...
+ $ primary_school_count    : int [1:10884] 7 7 3 7 1 8 2 4 2 3 ...
+ $ bus_stop_count          : int [1:10884] 7 7 3 7 1 8 2 4 2 3 ...
+ $ distance_to_hawker      : Units: [m] num [1:10884, 1] 331 331 143 508 372 ...
+ $ distance_to_mrt         : Units: [m] num [1:10884, 1] 598 598 1040 535 247 ...
+ $ distance_to_clinic      : Units: [m] num [1:10884, 1] 151.2 151.2 48.6 329.5 309.7 ...
+ $ distance_to_supermarket : Units: [m] num [1:10884, 1] 247 247 504 542 411 ...
+ $ distance_to_good_primary: Units: [m] num [1:10884, 1] 1220 1220 1380 619 337 ...</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a>resale_corr <span class="ot">&lt;-</span> resale_corr <span class="sc">%&gt;%</span></span>
+<span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate_if</span>(is.factor, as.numeric) <span class="sc">%&gt;%</span></span>
+<span id="cb60-3"><a href="#cb60-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate_if</span>(is.character, as.numeric)</span>
+<span id="cb60-4"><a href="#cb60-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-5"><a href="#cb60-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-6"><a href="#cb60-6" aria-hidden="true" tabindex="-1"></a>corr_matrix <span class="ot">&lt;-</span> <span class="fu">cor</span>(resale_corr, <span class="at">use =</span> <span class="st">"complete.obs"</span>)</span>
+<span id="cb60-7"><a href="#cb60-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-8"><a href="#cb60-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-9"><a href="#cb60-9" aria-hidden="true" tabindex="-1"></a>high_corr <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">as.table</span>(corr_matrix)) <span class="sc">%&gt;%</span></span>
+<span id="cb60-10"><a href="#cb60-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">abs</span>(Freq) <span class="sc">&gt;</span> <span class="fl">0.6</span> <span class="sc">&amp;</span> <span class="fu">abs</span>(Freq) <span class="sc">&lt;</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb60-11"><a href="#cb60-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(<span class="fu">abs</span>(Freq)))</span>
+<span id="cb60-12"><a href="#cb60-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-13"><a href="#cb60-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-14"><a href="#cb60-14" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(high_corr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>             Var1            Var2       Freq
+1        unit_age remaining_years -0.9988269
+2 remaining_years        unit_age -0.9988269
+3 distance_to_CBD    resale_price -0.6330724
+4    resale_price distance_to_CBD -0.6330724
+5        unit_age  floor_area_sqm  0.6059240
+6  floor_area_sqm        unit_age  0.6059240
+7 remaining_years  floor_area_sqm -0.6047065
+8  floor_area_sqm remaining_years -0.6047065</code></pre>
+</div>
+</div>
+<p>We can see that unit_age and remaining_years is highly correlated,so we delete one of them.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a>corr_df <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">as.table</span>(corr_matrix))</span>
+<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-3"><a href="#cb62-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-4"><a href="#cb62-4" aria-hidden="true" tabindex="-1"></a>unit_age_corr <span class="ot">&lt;-</span> corr_df <span class="sc">%&gt;%</span> </span>
+<span id="cb62-5"><a href="#cb62-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Var1 <span class="sc">==</span> <span class="st">"unit_age"</span> <span class="sc">&amp;</span> Var2 <span class="sc">!=</span> <span class="st">"unit_age"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb62-6"><a href="#cb62-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(<span class="fu">abs</span>(Freq)))</span>
+<span id="cb62-7"><a href="#cb62-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-8"><a href="#cb62-8" aria-hidden="true" tabindex="-1"></a>remaining_years_corr <span class="ot">&lt;-</span> corr_df <span class="sc">%&gt;%</span> </span>
+<span id="cb62-9"><a href="#cb62-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Var1 <span class="sc">==</span> <span class="st">"remaining_years"</span> <span class="sc">&amp;</span> Var2 <span class="sc">!=</span> <span class="st">"remaining_years"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb62-10"><a href="#cb62-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(<span class="fu">abs</span>(Freq)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb63"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(unit_age_corr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       Var1                     Var2         Freq
+1  unit_age          remaining_years -0.998826897
+2  unit_age           floor_area_sqm  0.605924034
+3  unit_age     primary_school_count -0.460202220
+4  unit_age           bus_stop_count -0.460202220
+5  unit_age          distance_to_CBD -0.216629624
+6  unit_age distance_to_good_primary -0.216587463
+7  unit_age       distance_to_clinic  0.196522465
+8  unit_age             resale_price -0.194729834
+9  unit_age       distance_to_hawker -0.115858038
+10 unit_age  distance_to_supermarket  0.114616701
+11 unit_age     storey_range_ordinal -0.111693084
+12 unit_age          distance_to_mrt  0.008148243</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb65"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(remaining_years_corr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>              Var1                     Var2         Freq
+1  remaining_years                 unit_age -0.998826897
+2  remaining_years           floor_area_sqm -0.604706549
+3  remaining_years     primary_school_count  0.461103309
+4  remaining_years           bus_stop_count  0.461103309
+5  remaining_years          distance_to_CBD  0.217771196
+6  remaining_years distance_to_good_primary  0.216884753
+7  remaining_years       distance_to_clinic -0.196149938
+8  remaining_years             resale_price  0.187563361
+9  remaining_years       distance_to_hawker  0.115006245
+10 remaining_years  distance_to_supermarket -0.114038804
+11 remaining_years     storey_range_ordinal  0.111058422
+12 remaining_years          distance_to_mrt -0.007613472</code></pre>
+</div>
+</div>
+<p>We choose to delete unit_age.</p>
+</section>
+</section>
+<section id="modeling" class="level1">
+<h1>6 Modeling</h1>
+<section id="geographical-random-forest-model" class="level2">
+<h2 class="anchored" data-anchor-id="geographical-random-forest-model">6.1 Geographical Random Forest Model</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb67"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a>resale <span class="ot">&lt;-</span> resale <span class="sc">%&gt;%</span></span>
+<span id="cb67-2"><a href="#cb67-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb67-3"><a href="#cb67-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">distance_to_CBD =</span> <span class="fu">as.numeric</span>(distance_to_CBD),</span>
+<span id="cb67-4"><a href="#cb67-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">distance_to_hawker =</span> <span class="fu">as.numeric</span>(distance_to_hawker),</span>
+<span id="cb67-5"><a href="#cb67-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">distance_to_mrt =</span> <span class="fu">as.numeric</span>(distance_to_mrt),</span>
+<span id="cb67-6"><a href="#cb67-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">distance_to_clinic =</span> <span class="fu">as.numeric</span>(distance_to_clinic),</span>
+<span id="cb67-7"><a href="#cb67-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">distance_to_supermarket =</span> <span class="fu">as.numeric</span>(distance_to_supermarket),</span>
+<span id="cb67-8"><a href="#cb67-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">distance_to_good_primary =</span> <span class="fu">as.numeric</span>(distance_to_good_primary)</span>
+<span id="cb67-9"><a href="#cb67-9" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb67-10"><a href="#cb67-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb67-11"><a href="#cb67-11" aria-hidden="true" tabindex="-1"></a>resale <span class="ot">&lt;-</span> resale <span class="sc">%&gt;%</span></span>
+<span id="cb67-12"><a href="#cb67-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">storey_range_ordinal =</span> <span class="fu">as.numeric</span>(<span class="fu">as.character</span>(storey_range_ordinal)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>split test and train data.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb68"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a>resale_train <span class="ot">&lt;-</span> resale <span class="sc">%&gt;%</span></span>
+<span id="cb68-2"><a href="#cb68-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">str_sub</span>(month, <span class="dv">1</span>, <span class="dv">4</span>) <span class="sc">==</span> <span class="st">"2023"</span>)<span class="sc">%&gt;%</span></span>
+<span id="cb68-3"><a href="#cb68-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(floor_area_sqm, resale_price, storey_range_ordinal, remaining_years, distance_to_CBD, primary_school_count, bus_stop_count,distance_to_hawker, distance_to_mrt, distance_to_clinic, distance_to_supermarket, distance_to_good_primary)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb69"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a>resale_test <span class="ot">&lt;-</span> resale <span class="sc">%&gt;%</span></span>
+<span id="cb69-2"><a href="#cb69-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">str_sub</span>(month, <span class="dv">1</span>, <span class="dv">4</span>) <span class="sc">==</span> <span class="st">"2024"</span>)<span class="sc">%&gt;%</span></span>
+<span id="cb69-3"><a href="#cb69-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(floor_area_sqm, resale_price, storey_range_ordinal, remaining_years, distance_to_CBD, primary_school_count, bus_stop_count,distance_to_hawker, distance_to_mrt, distance_to_clinic, distance_to_supermarket, distance_to_good_primary)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb70"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a>coords_train <span class="ot">&lt;-</span> <span class="fu">st_coordinates</span>(resale_train)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb71"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a>resale_train <span class="ot">&lt;-</span> <span class="fu">st_drop_geometry</span>(resale_train)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb72"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1234</span>)</span>
+<span id="cb72-2"><a href="#cb72-2" aria-hidden="true" tabindex="-1"></a>gwRF_adaptive <span class="ot">&lt;-</span> <span class="fu">grf</span>(<span class="at">formula =</span> resale_price <span class="sc">~</span> floor_area_sqm <span class="sc">+</span> storey_range_ordinal <span class="sc">+</span></span>
+<span id="cb72-3"><a href="#cb72-3" aria-hidden="true" tabindex="-1"></a>                       remaining_years <span class="sc">+</span> distance_to_CBD <span class="sc">+</span> primary_school_count <span class="sc">+</span></span>
+<span id="cb72-4"><a href="#cb72-4" aria-hidden="true" tabindex="-1"></a>                       bus_stop_count <span class="sc">+</span> distance_to_hawker <span class="sc">+</span> distance_to_mrt <span class="sc">+</span></span>
+<span id="cb72-5"><a href="#cb72-5" aria-hidden="true" tabindex="-1"></a>                       distance_to_clinic <span class="sc">+</span> distance_to_supermarket <span class="sc">+</span> distance_to_good_primary,</span>
+<span id="cb72-6"><a href="#cb72-6" aria-hidden="true" tabindex="-1"></a>                     <span class="at">dframe=</span>resale_train, </span>
+<span id="cb72-7"><a href="#cb72-7" aria-hidden="true" tabindex="-1"></a>                     <span class="at">bw=</span><span class="dv">55</span>,</span>
+<span id="cb72-8"><a href="#cb72-8" aria-hidden="true" tabindex="-1"></a>                     <span class="at">kernel=</span><span class="st">"adaptive"</span>,</span>
+<span id="cb72-9"><a href="#cb72-9" aria-hidden="true" tabindex="-1"></a>                     <span class="at">coords=</span>coords_train)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb73"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a><span class="fu">write_rds</span>(gwRF_adaptive, <span class="st">"data/gwRF_adaptive.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb74"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a>gwRF_adaptive <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(<span class="st">"data/gwRF_adaptive.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="predict" class="level2">
+<h2 class="anchored" data-anchor-id="predict">6.2 predict</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb75"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb75-1"><a href="#cb75-1" aria-hidden="true" tabindex="-1"></a>coords_test <span class="ot">&lt;-</span> <span class="fu">st_coordinates</span>(resale_test)</span>
+<span id="cb75-2"><a href="#cb75-2" aria-hidden="true" tabindex="-1"></a>resale_test <span class="ot">&lt;-</span> <span class="fu">st_drop_geometry</span>(resale_test)</span>
+<span id="cb75-3"><a href="#cb75-3" aria-hidden="true" tabindex="-1"></a>resale_test<span class="sc">$</span>X <span class="ot">&lt;-</span> coords_test[,<span class="dv">1</span>]</span>
+<span id="cb75-4"><a href="#cb75-4" aria-hidden="true" tabindex="-1"></a>resale_test<span class="sc">$</span>Y <span class="ot">&lt;-</span> coords_test[,<span class="dv">2</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb76"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a>resale_test <span class="ot">&lt;-</span> <span class="fu">st_drop_geometry</span>(resale_test)</span>
+<span id="cb76-2"><a href="#cb76-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb76-3"><a href="#cb76-3" aria-hidden="true" tabindex="-1"></a>gwRF_pred <span class="ot">&lt;-</span> <span class="fu">predict.grf</span>(gwRF_adaptive, </span>
+<span id="cb76-4"><a href="#cb76-4" aria-hidden="true" tabindex="-1"></a>                           resale_test, </span>
+<span id="cb76-5"><a href="#cb76-5" aria-hidden="true" tabindex="-1"></a>                           <span class="at">x.var.name=</span><span class="st">"X"</span>,</span>
+<span id="cb76-6"><a href="#cb76-6" aria-hidden="true" tabindex="-1"></a>                           <span class="at">y.var.name=</span><span class="st">"Y"</span>, </span>
+<span id="cb76-7"><a href="#cb76-7" aria-hidden="true" tabindex="-1"></a>                           <span class="at">local.w=</span><span class="dv">1</span>,</span>
+<span id="cb76-8"><a href="#cb76-8" aria-hidden="true" tabindex="-1"></a>                           <span class="at">global.w=</span><span class="dv">0</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 
 
+</section>
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
