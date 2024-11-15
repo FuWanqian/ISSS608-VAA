@@ -304,6 +304,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul class="collapse">
   <li><a href="#geographical-random-forest-model" id="toc-geographical-random-forest-model" class="nav-link" data-scroll-target="#geographical-random-forest-model">6.1 Geographical Random Forest Model</a></li>
   <li><a href="#predict" id="toc-predict" class="nav-link" data-scroll-target="#predict">6.2 predict</a></li>
+  <li><a href="#model-evaluation" id="toc-model-evaluation" class="nav-link" data-scroll-target="#model-evaluation">6.3 model evaluation</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -1236,6 +1237,29 @@ dbl (3): floor_area_sqm, lease_commence_date, resale_price
 <span id="cb76-7"><a href="#cb76-7" aria-hidden="true" tabindex="-1"></a>                           <span class="at">local.w=</span><span class="dv">1</span>,</span>
 <span id="cb76-8"><a href="#cb76-8" aria-hidden="true" tabindex="-1"></a>                           <span class="at">global.w=</span><span class="dv">0</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb77"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb77-1"><a href="#cb77-1" aria-hidden="true" tabindex="-1"></a><span class="fu">write_rds</span>(gwRF_pred, <span class="st">"data/gwRF_pred.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="model-evaluation" class="level2">
+<h2 class="anchored" data-anchor-id="model-evaluation">6.3 model evaluation</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb78"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a>gwRF_pred <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(<span class="st">"data/gwRF_pred.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb79"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb79-1"><a href="#cb79-1" aria-hidden="true" tabindex="-1"></a>pred_df <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(gwRF_pred)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb80"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb80-1"><a href="#cb80-1" aria-hidden="true" tabindex="-1"></a>test_data_p <span class="ot">&lt;-</span> <span class="fu">cbind</span>(resale_test,pred_df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb81"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb81-1"><a href="#cb81-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rmse</span>(test_data_p<span class="sc">$</span>resale_price, </span>
+<span id="cb81-2"><a href="#cb81-2" aria-hidden="true" tabindex="-1"></a>     test_data_p<span class="sc">$</span>gwRF_pred)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 223586.3</code></pre>
+</div>
+</div>
+<p>So the RMSE of Geographically Weighted Random Forest Model is 223586.3.</p>
 
 
 </section>

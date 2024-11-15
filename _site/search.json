@@ -1236,6 +1236,13 @@
     "href": "Takehome_Ex/Takehome_Ex03/Takehome_Ex03.html#predict",
     "title": "Takehome_Ex03 Predicting HDB Resale Prices with Geographically Weighted Machine Learning Methods",
     "section": "6.2 predict",
-    "text": "6.2 predict\n\ncoords_test &lt;- st_coordinates(resale_test)\nresale_test &lt;- st_drop_geometry(resale_test)\nresale_test$X &lt;- coords_test[,1]\nresale_test$Y &lt;- coords_test[,2]\n\n\nresale_test &lt;- st_drop_geometry(resale_test)\n\ngwRF_pred &lt;- predict.grf(gwRF_adaptive, \n                           resale_test, \n                           x.var.name=\"X\",\n                           y.var.name=\"Y\", \n                           local.w=1,\n                           global.w=0)"
+    "text": "6.2 predict\n\ncoords_test &lt;- st_coordinates(resale_test)\nresale_test &lt;- st_drop_geometry(resale_test)\nresale_test$X &lt;- coords_test[,1]\nresale_test$Y &lt;- coords_test[,2]\n\n\nresale_test &lt;- st_drop_geometry(resale_test)\n\ngwRF_pred &lt;- predict.grf(gwRF_adaptive, \n                           resale_test, \n                           x.var.name=\"X\",\n                           y.var.name=\"Y\", \n                           local.w=1,\n                           global.w=0)\n\n\nwrite_rds(gwRF_pred, \"data/gwRF_pred.rds\")"
+  },
+  {
+    "objectID": "Takehome_Ex/Takehome_Ex03/Takehome_Ex03.html#model-evaluation",
+    "href": "Takehome_Ex/Takehome_Ex03/Takehome_Ex03.html#model-evaluation",
+    "title": "Takehome_Ex03 Predicting HDB Resale Prices with Geographically Weighted Machine Learning Methods",
+    "section": "6.3 model evaluation",
+    "text": "6.3 model evaluation\n\ngwRF_pred &lt;- read_rds(\"data/gwRF_pred.rds\")\n\n\npred_df &lt;- as.data.frame(gwRF_pred)\n\n\ntest_data_p &lt;- cbind(resale_test,pred_df)\n\n\nrmse(test_data_p$resale_price, \n     test_data_p$gwRF_pred)\n\n[1] 223586.3\n\n\nSo the RMSE of Geographically Weighted Random Forest Model is 223586.3."
   }
 ]

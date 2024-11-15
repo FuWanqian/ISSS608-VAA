@@ -575,7 +575,26 @@ gwRF_pred <- predict.grf(gwRF_adaptive,
                            local.w=1,
                            global.w=0)
 ```
+```{r,eval=FALSE}
+write_rds(gwRF_pred, "data/gwRF_pred.rds")
+```
 
+## 6.3 model evaluation
+```{r}
+gwRF_pred <- read_rds("data/gwRF_pred.rds")
+```
 
+```{r}
+pred_df <- as.data.frame(gwRF_pred)
+```
 
+```{r}
+test_data_p <- cbind(resale_test,pred_df)
+```
 
+```{r}
+rmse(test_data_p$resale_price, 
+     test_data_p$gwRF_pred)
+```
+
+So the RMSE of Geographically Weighted Random Forest Model is 223586.3.
